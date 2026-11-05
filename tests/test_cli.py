@@ -192,6 +192,79 @@ class CliTests(unittest.TestCase):
             self.assertIn('--model', completed.stdout)
             self.assertIn('xhigh', completed.stdout)
 
+    def test_normalize_base_url(self):
+        cases = {
+            'https://jp.xcli.si': 'https://jp.xcli.si/v1',
+            'https://jp.xcli.si/': 'https://jp.xcli.si/v1',
+            'https://jp.xcli.si/v1': 'https://jp.xcli.si/v1',
+            'https://jp.xcli.si/v1/': 'https://jp.xcli.si/v1',
+            'https://jp.xcli.si/v1/images/generations': 'https://jp.xcli.si/v1',
+            'https://us.xcli.si/v1/images/edits': 'https://us.xcli.si/v1',
+            'https://gateway.example.com/openai/v1': 'https://gateway.example.com/openai/v1',
+            '': None,
+            None: None,
+        }
+        for raw, expected in cases.items():
+            with self.subTest(raw=raw):
+                self.assertEqual(cli.normalize_base_url(raw), expected)
+
+    def test_base_url_forwarded_to_openai_client(self):
+        path = self.folder / 'relay.png'
+        with patch.object(sys, 'argv', [
+            'gpt-image', '-p', 'Relay test', '--base-url', 'https://jp.xcli.si', '-f', str(path)
+        ]), patch.object(cli, '_load_env_chain'), patch.dict(os.environ, {'OPENAI_API_KEY': 'offline-test'}, clear=True), \
+             patch.object(cli, 'OpenAI', return_value=self.client) as constructor, contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(cli.main(), 0)
+            constructor.assert_called_once_with(
+                max_retries=0,
+                base_url='https://jp.xcli.si/v1',
+            )
+
+    def test_url_response_download_sets_user_agent(self):
+        item = type('ImageItem', (), {'b64_json': None, 'url': 'https://cdn.xcli.si/signed/image.png'})()
+        captured_req = {}
+        out_file = self.folder / 'from_url.png'
+
+        class DummyResponse:
+            def __enter__(self_inner):
+                return self_inner
+            def __exit__(self_inner, *exc):
+                return False
+            def read(self_inner):
+                return PNG
+
+        def fake_urlopen(req, timeout=300):
+            captured_req['url'] = req.full_url
+            captured_req['ua'] = req.get_header('User-agent')
+            return DummyResponse()
+
+        with patch.object(cli.urllib.request, 'urlopen', side_effect=fake_urlopen):
+            written = cli.write_outputs([item], out_file, 1)
+        self.assertEqual(written, [out_file])
+        self.assertEqual(out_file.read_bytes(), PNG)
+        self.assertEqual(captured_req['url'], 'https://cdn.xcli.si/signed/image.png')
+        self.assertIn('Mozilla/5.0', captured_req['ua'])
+
+    def test_tui_preview_protocol_detection_and_encoders(self):
+        self.assertEqual(cli.detect_terminal_preview_protocol({'TERM_PROGRAM': 'iTerm.app'}), 'osc1337')
+        self.assertEqual(cli.detect_terminal_preview_protocol({'TERM_PROGRAM': 'WezTerm'}), 'osc1337')
+        self.assertEqual(cli.detect_terminal_preview_protocol({'TERM': 'xterm-kitty'}), 'kitty')
+        self.assertEqual(cli.detect_terminal_preview_protocol({'TERM_PROGRAM': 'ghostty'}), 'kitty')
+        self.assertIsNone(cli.detect_terminal_preview_protocol({'TERM': 'xterm-256color'}))
+
+        osc = cli._format_osc1337_image(self.image, PNG)
+        self.assertTrue(osc.startswith('\033]1337;File=name='))
+        self.assertIn(';inline=1;', osc)
+        kitty = cli._format_kitty_image(PNG)
+        self.assertTrue(kitty.startswith('\033_G'))
+        self.assertTrue(kitty.endswith('\033\\\n'))
+
+    def test_vendored_cli_matches_source(self):
+        root = Path(__file__).resolve().parents[1]
+        src_cli = (root / 'src/gpt_image_cli/cli.py').read_text(encoding='utf-8')
+        vendored_cli = (root / 'skills/gpt-image/scripts/gpt_image_cli/cli.py').read_text(encoding='utf-8')
+        self.assertEqual(src_cli, vendored_cli)
+
 
 if __name__ == '__main__':
     unittest.main()

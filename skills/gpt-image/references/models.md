@@ -69,9 +69,8 @@ existence; that alone does not prove valid format, alpha channel, or size.
 - **Cost:** equal per-token rates do not imply equal per-image cost. Compare
   returned usage for the selected model, size, and quality. Do not promise a
   fixed multiplier per quality level or assume Flare is always cheaper.
-- **Output:** save `data[].b64_json`; a successful response is not proof that
-  text, identity, or layout is correct. Check the actual image. Do not add
-  `response_format` for GPT Image models.
+- **Output & Relay compatibility:** save `data[].b64_json` when returned, or download `data[].url` with `User-Agent: Mozilla/5.0` when a load-balanced relay node returns a pre-signed URL. Do not add `response_format` for GPT Image models.
+- **Third-party relays (`OPENAI_BASE_URL`):** set `OPENAI_BASE_URL` (for example `https://jp.xcli.si/v1` or `https://us.xcli.si/v1`) and `OPENAI_API_KEY` in `~/.codex/.env`, `~/.workbuddy/.env`, `<skill>/.env`, or `./.env`. Bare relay hosts are normalized to `/v1`.
 
 ## Validation boundary
 

@@ -65,6 +65,42 @@ class CredentialTests(unittest.TestCase):
         self.assert_selected_key('')
         self.assertIn('OPENAI_API_KEY', os.environ)
 
+    def test_codex_and_workbuddy_env_fallback(self):
+        codex_dir = self.home / '.codex'
+        codex_dir.mkdir()
+        (codex_dir / '.env').write_text(
+            'OPENAI_BASE_URL=https://jp.xcli.si\nOPENAI_API_KEY=fake-codex-key\n',
+            encoding='utf-8',
+        )
+        self.assert_selected_key('fake-codex-key')
+        self.assertEqual(os.environ.get('OPENAI_BASE_URL'), 'https://jp.xcli.si/v1')
+
+    def test_xcli_alias_variables_promoted(self):
+        wb_dir = self.home / '.workbuddy'
+        wb_dir.mkdir()
+        (wb_dir / '.env').write_text(
+            'XCLI_BASE_URL=https://us.xcli.si/v1\nXCLI_API_KEY=fake-wb-key\n',
+            encoding='utf-8',
+        )
+        self.assert_selected_key('fake-wb-key')
+        self.assertEqual(os.environ.get('OPENAI_BASE_URL'), 'https://us.xcli.si/v1')
+
+    def test_placeholder_key_detection(self):
+        self.assertTrue(cli._is_placeholder_key('YOUR_API_KEY_HERE'))
+        self.assertTrue(cli._is_placeholder_key('sk-xxxx'))
+        self.assertFalse(cli._is_placeholder_key('fake-valid-key-123456'))
+
+    def test_relay_env_file_pairs_url_and_key_when_process_lacks_base_url(self):
+        os.environ['OPENAI_API_KEY'] = 'unrelated-shell-openai-key'
+        codex_dir = self.home / '.codex'
+        codex_dir.mkdir()
+        (codex_dir / '.env').write_text(
+            'OPENAI_BASE_URL=https://jp.xcli.si/v1\nOPENAI_API_KEY=paired-relay-key\n',
+            encoding='utf-8',
+        )
+        self.assert_selected_key('paired-relay-key')
+        self.assertEqual(os.environ.get('OPENAI_BASE_URL'), 'https://jp.xcli.si/v1')
+
 
 if __name__ == '__main__':
     unittest.main()

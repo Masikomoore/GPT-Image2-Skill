@@ -1,8 +1,7 @@
 ---
 name: gpt-image
-description: "Generate or edit images with GPT Image 2 or 2.5 through the packaged CLI and Reference Gallery. Use for image requests including imprecise 'GPT 2.5' model names, posters, typography, reference edits, and inpainting; resolve the model choice before generation."
-compatibility: "Requires Python 3.11+ and either `gpt-image`, `uv`, or `uvx`. CLI/API calls read `OPENAI_API_KEY` and may incur OpenAI API charges."
-metadata: {"openclaw":{"requires":{"anyBins":["gpt-image","uv","uvx"]},"primaryEnv":"OPENAI_API_KEY","homepage":"https://github.com/wuyoscar/gpt_image_2_skill"}}
+description: "Generate or edit images with GPT Image 2 or 2.5 through the packaged CLI and Reference Gallery (supports official OpenAI and third-party OpenAI-compatible relays via OPENAI_BASE_URL and OPENAI_API_KEY). Use for image requests including imprecise 'GPT 2.5' model names, posters, typography, reference edits, and inpainting; resolve the model choice before generation."
+metadata: {"openclaw":{"requires":{"anyBins":["python3","gpt-image","uv","uvx"]},"primaryEnv":"OPENAI_API_KEY","homepage":"https://github.com/Masikomoore/GPT-Image2-Skill"}}
 ---
 
 # gpt-image
@@ -18,7 +17,7 @@ Agent runbook for GPT Image 2 / 2.5 generation/editing. Use the prompt library +
 5. **Preflight, no side effects**: use existing CLI/skill if present. Check command availability (`command -v gpt-image`), installed tool lists when the tool manager exists, or the runtime’s own skill registry when available. Do not assume a local home path in cloud/hosted runtimes.
 6. **No blind setup**: do not reinstall, overwrite skill folders, create/modify `.env`, or write API keys unless the user explicitly requested setup. Global/shared installs are opt-in only.
 7. **Execute via CLI only**: call `gpt-image` or `scripts/generate.py` with an explicit `--model`. Do not create a new `generate.py`, SDK wrapper, or ad-hoc script for normal image requests.
-8. **Report**: output file path(s), key flags, and one concise refinement suggestion if useful.
+8. **Report & Display**: output file path(s), key flags, and one concise refinement suggestion if useful. In GUI clients (Codex Desktop, WorkBuddy, Cursor, Cline, Roo Code), also embed the generated image in your reply using Markdown with its absolute local path (`![alt](/absolute/path/to/image.png)`). In TUI terminals (iTerm2, WezTerm, Warp, Kitty, Ghostty), pass `--preview auto` (or `--open`) so the user sees the image directly.
 
 Fast path: confirmed 2.5 model + precise prompt + “generate now” → preflight and CLI, without a mandatory reference/craft pass. Do not reconfirm an exact valid model.
 
@@ -45,20 +44,23 @@ Preferred call order:
 # Existing CLI on PATH
 gpt-image --model MODEL_ID -p "PROMPT" [-f OUT] [-i REF...] [-m MASK] [options]
 
-# Installed skill folder; use runtime-provided skill path when available
-uv run "$SKILL_DIR/scripts/generate.py" --model MODEL_ID -p "PROMPT" [-f OUT] [-i REF...] [-m MASK] [options]
+# Installed skill folder (works with python3 directly or uv run; vendored CLI included)
+python3 "$SKILL_DIR/scripts/generate.py" --model MODEL_ID -p "PROMPT" [-f OUT] [-i REF...] [-m MASK] [options]
 
 # Direct transient CLI when the user requested setup/one-off CLI execution
-uvx --from git+https://github.com/wuyoscar/gpt_image_2_skill gpt-image --model MODEL_ID -p "PROMPT" [options]
+uvx --from git+https://github.com/Masikomoore/GPT-Image2-Skill gpt-image --model MODEL_ID -p "PROMPT" [options]
 ```
 
-`scripts/generate.py` is a launcher: repo-local `src/gpt_image_cli` → installed `gpt-image` → PATH `gpt-image` → transient `uvx`/`uv` fallback.
+`scripts/generate.py` is a self-contained launcher: skill-bundled `scripts/gpt_image_cli` → repo-local `src/gpt_image_cli` → installed `gpt-image` → PATH `gpt-image` → transient `uvx`/`uv` fallback.
 
-## Key and cost rules
+## Relay, key, and installation rules
 
-- CLI reads `OPENAI_API_KEY` from process env, then `.env`, then `~/.env` without overriding existing env; successful API calls may bill the user’s OpenAI account.
+- CLI reads `OPENAI_API_KEY` and optional `OPENAI_BASE_URL` (e.g. `https://jp.xcli.si/v1` or `https://us.xcli.si/v1`) from:
+  `process env` → `./.env` → `<skill_dir>/.env` → `${CODEX_HOME:-~/.codex}/.env` → `~/.workbuddy/.env` → `~/.codebuddy/.env` → `~/.claude/.env` → `~/.cursor/.env` → `~/.agents/.env` → `~/.env`.
+- Also recognizes `GPT_IMAGE_API_KEY` / `XCLI_API_KEY` and `GPT_IMAGE_BASE_URL` / `XCLI_BASE_URL`. Bare relay URLs (like `https://jp.xcli.si`) are automatically normalized to `/v1`.
+- When the user asks an AI agent to install this skill, run the non-interactive installer (`curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh -s -- --agent-mode` or `python3 scripts/setup_skill.py --agent-mode`), do **not** ask the user to paste their API key into chat, and return the printed `.env` path (`~/.codex/.env`) so the user can fill in `OPENAI_BASE_URL` and `OPENAI_API_KEY` locally.
 - If host/runtime has native platform-managed image generation and the user wants that path, use the host tool instead of this CLI.
-- If `OPENAI_API_KEY` is unset, report missing key or use host-native generation when requested; do not write secrets.
+- If `OPENAI_API_KEY` is unset or still set to `YOUR_API_KEY_HERE`, stop and tell the user which `.env` file to edit (`~/.codex/.env`); never print secret values.
 - If user wants to avoid local-key use, respect `unset OPENAI_API_KEY`; if a key exists in `.env`/`~/.env`, tell them to remove/rename it for the session rather than working around it.
 - Never print secret values.
 
@@ -71,7 +73,7 @@ uvx --from git+https://github.com/wuyoscar/gpt_image_2_skill gpt-image --model M
 | `-i, --image` | repeatable path | Use edits endpoint; supports multiple references |
 | `-m, --mask` | PNG path | Inpaint with alpha mask; requires `-i` |
 | `--model` | `gpt-image-2`, `gpt-image-2.5-flare`, `gpt-image-2.5-sunburst` | Agent must pass the resolved choice explicitly |
-| `--size` | `1k`, `2k`, `4k`, `portrait`, `landscape`, `square`, `wide`, `tall`, or literal | Canvas size |
+| `--size` | `1k`, `2k`, `2k-landscape`, `2k-portrait`, `2.5k`, `4k`, `4k-landscape`, `4k-portrait`, `4k-square`, `portrait`, `landscape`, `square`, `wide`, `tall`, or literal | Canvas size |
 | `--quality` | `low`, `medium`, `high`, `auto`; 2.5 also `xhigh`, `max` | Cost/quality dial; check model-specific limits |
 | `-n, --n` | integer | Number of images |
 | `--background` | `auto`, `opaque`; 2.5 also `transparent` | Transparency requires PNG or WebP, not JPEG |
@@ -80,6 +82,10 @@ uvx --from git+https://github.com/wuyoscar/gpt_image_2_skill gpt-image --model M
 | `--format` | `png`, `jpeg`, `webp` | Output encoding |
 | `--compression` | `0-100` | JPEG/WebP compression |
 | `--user` | string | Optional end-user identifier |
+| `--base-url` | URL string | Override `OPENAI_BASE_URL` for an OpenAI-compatible relay |
+| `--api-key` | string | Override `OPENAI_API_KEY` (prefer `.env` configuration) |
+| `--preview` | `auto`, `osc1337`, `kitty`, `open`, `off` | Render inline image in TUI terminals via `/dev/tty` or open viewer |
+| `--open` | flag | Open generated image(s) in OS default viewer |
 
 Quality starting points (not guarantees; keep the user's agreed setting). For 2.5, these take precedence over fixed quality advice in older craft references:
 - `low`: cheap drafts and broad exploration; multiple variants require user authorization.

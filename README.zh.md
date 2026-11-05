@@ -6,8 +6,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/wuyoscar/gpt_image_2_skill/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"/></a>
-  <a href="https://github.com/wuyoscar/gpt_image_2_skill/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"/></a>
+  <a href="https://github.com/Masikomoore/GPT-Image2-Skill/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"/></a>
+  <a href="https://github.com/Masikomoore/GPT-Image2-Skill/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"/></a>
   <img src="https://img.shields.io/badge/models-GPT%20Image%202%20%2F%202.5-purple.svg" alt="模型: GPT Image 2 / 2.5"/>
   <img src="https://img.shields.io/badge/python-%E2%89%A53.11-blue.svg" alt="Python ≥ 3.11"/>
 </p>
@@ -36,11 +36,11 @@
   </tr>
   <tr>
     <td>支持形态</td>
-    <td><strong>2 个 Agent Skill + CLI</strong>: Claude Code / Codex、OpenClaw、Hermes Agent，以及其他支持 Skill 的 Agent 运行时</td>
+    <td><strong>2 个 Agent Skill + CLI + 第三方中转站支持</strong>: Codex、WorkBuddy、CodeBuddy、Claude Code、Cursor、Cline、Roo Code、OpenCode、Pi、OpenClaw、Hermes Agent 等全客户端，支持 GUI 渲染与 TUI 终端内联看图</td>
   </tr>
   <tr>
     <td>最后更新</td>
-    <td><strong>2026-09-10</strong></td>
+    <td><strong>2026-11-05</strong></td>
   </tr>
   <tr>
     <td>文档</td>
@@ -203,7 +203,44 @@ gpt-image --model gpt-image-2.5-sunburst -p "将天空替换为极光" \
 
 ## 📥 安装
 
-可以任选一个 Skill，也可以同时安装：`gpt-image` 负责生成和编辑图片，`get-prompt-from-image` 负责从参考图提取 Prompt。
+同时安装 `gpt-image`（生图/改图）与 `get-prompt-from-image`（从图片反推 Prompt），支持 **Codex、WorkBuddy、CodeBuddy、Claude Code、Cursor、Cline、Roo Code、OpenCode、Pi、OpenClaw、Hermes Agent** 等全部客户端，并原生支持 **第三方 OpenAI 兼容中转站**（如 `https://jp.xcli.si/v1` / `https://us.xcli.si/v1`）。
+
+### 方式一：终端一条命令互动安装（推荐人类用户在终端直接执行）
+
+在终端运行以下一条命令，脚本会自动检测并安装到本机已有的客户端（Codex / WorkBuddy / Claude Code / Cursor / `~/.agents/skills` 等），并**互动引导你输入中转站地址 `OPENAI_BASE_URL` 和隐藏输入 `OPENAI_API_KEY`**：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh
+```
+
+Windows PowerShell 一键安装：
+
+```powershell
+irm https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.ps1 | iex
+```
+
+### 方式二：给 AI Agent 一句话自动安装（Codex / WorkBuddy / Claude Code / Cursor 等）
+
+直接复制下面这句话发给你的 AI Agent（无需在聊天框里暴露 API Key，Agent 安装完毕后会直接把 `.env` 配置文件路径发给你，你打开填好即可使用）：
+
+```text
+请帮我安装 https://github.com/Masikomoore/GPT-Image2-Skill ：运行 `curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh -s -- --agent-mode` 完成多客户端安装，不要在对话里向我索要 API Key，安装完成后把生成的 .env 配置文件绝对路径发给我，我自己去补全。
+```
+
+### 🔑 第三方中转站与 `.env` 配置说明
+
+默认配置文件路径为 `~/.codex/.env`（也支持 `~/.workbuddy/.env`、`<skill>/.env`、`./.env`、`~/.env`），格式如下：
+
+```dotenv
+OPENAI_BASE_URL=https://jp.xcli.si/v1
+OPENAI_API_KEY=你的中转站API_KEY
+```
+
+- **地址自动归一化**：填写 `https://jp.xcli.si`、`https://jp.xcli.si/v1` 或 `https://us.xcli.si/v1` 均可，CLI 会自动规范为 `/v1` 端点。
+- **配置读取优先级**：命令行 `--base-url` / `--api-key` → `./.env` → `<skill目录>/.env` → `~/.codex/.env` → `~/.workbuddy/.env` → `~/.codebuddy/.env` → `~/.claude/.env` → `~/.cursor/.env` → `~/.agents/.env` → `~/.env`。
+- **多客户端与终端看图支持**：
+  - **GUI 客户端（Codex Desktop、WorkBuddy、Cursor、Cline、Roo Code）**：生成图片后 Agent 会通过 Markdown `![alt](/绝对路径/xxx.png)` 直接在对话流中渲染图片。
+  - **TUI 终端（iTerm2、WezTerm、Warp、Kitty、Ghostty）**：加上 `--preview auto` 即可通过终端图形协议（OSC 1337 / Kitty APC）直接在终端内显示图片（输出到 `/dev/tty`，不污染 stdout），或加 `--open` 调用系统看图软件打开。
 
 安装前先检查 Skill 或 CLI 是否已经可用，保留已有 Skill 目录和 API Key 文件。优先使用运行时自带的 skill list/status 命令；安装到全局或共享目录前，先征得用户同意。
 
@@ -217,7 +254,7 @@ test -n "${OPENAI_API_KEY:-}" && echo "OPENAI_API_KEY is already set (value hidd
 <summary><strong>Claude Code</strong></summary>
 
 ```text
-/plugin marketplace add wuyoscar/gpt_image_2_skill
+/plugin marketplace add Masikomoore/GPT-Image2-Skill
 /plugin install gpt-image@wuyoscar-skills
 ```
 
@@ -233,12 +270,12 @@ Codex 内置了 `$skill-installer`、`$skill-creator` 等 Skill 管理工具。
 # gpt-image
 $skill-installer
 Install this skill from GitHub:
-https://github.com/wuyoscar/gpt_image_2_skill/tree/main/skills/gpt-image
+https://github.com/Masikomoore/GPT-Image2-Skill/tree/main/skills/gpt-image
 
 # get-prompt-from-image
 $skill-installer
 Install this skill from GitHub:
-https://github.com/wuyoscar/gpt_image_2_skill/tree/main/skills/get-prompt-from-image
+https://github.com/Masikomoore/GPT-Image2-Skill/tree/main/skills/get-prompt-from-image
 ```
 
 安装器会下载每个 GitHub 文件夹，并放到你的 Codex skills 目录，通常是：
@@ -253,8 +290,8 @@ https://github.com/wuyoscar/gpt_image_2_skill/tree/main/skills/get-prompt-from-i
 如果你想手动同时安装，可以把两个 skill 文件夹复制到 Codex 的 skills 目录：
 
 ```bash
-git clone https://github.com/wuyoscar/gpt_image_2_skill.git
-cd gpt_image_2_skill
+git clone https://github.com/Masikomoore/GPT-Image2-Skill.git
+cd GPT-Image2-Skill
 
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
 for skill in gpt-image get-prompt-from-image; do
@@ -272,7 +309,7 @@ done
 
 ```bash
 # 将 --agent 改为 claude-code、codex、opencode、openclaw 或其他受支持运行时。
-npx --yes skills@latest add wuyoscar/gpt_image_2_skill \
+npx --yes skills@latest add Masikomoore/GPT-Image2-Skill \
   --skill gpt-image \
   --skill get-prompt-from-image \
   --agent codex --copy
@@ -290,8 +327,8 @@ npx --yes skills@latest add wuyoscar/gpt_image_2_skill \
 把 `AGENT_SKILLS_DIR` 设置为你的 Agent 运行时所使用的 skills 目录，然后把一个或两个 skill 文件夹软链接进去。
 
 ```bash
-git clone https://github.com/wuyoscar/gpt_image_2_skill.git
-cd gpt_image_2_skill
+git clone https://github.com/Masikomoore/GPT-Image2-Skill.git
+cd GPT-Image2-Skill
 
 # 选择你的运行时对应的 skills 目录。
 # 示例：
@@ -312,10 +349,10 @@ done
 <summary><strong>CLI</strong></summary>
 
 ```bash
-uvx --from git+https://github.com/wuyoscar/gpt_image_2_skill gpt-image --model gpt-image-2.5-flare -p "a cat astronaut"
+uvx --from git+https://github.com/Masikomoore/GPT-Image2-Skill gpt-image --model gpt-image-2.5-flare -p "a cat astronaut"
 
 # 或在尚未安装时安装到 PATH
-command -v gpt-image >/dev/null || uv tool install git+https://github.com/wuyoscar/gpt_image_2_skill
+command -v gpt-image >/dev/null || uv tool install git+https://github.com/Masikomoore/GPT-Image2-Skill
 gpt-image --model gpt-image-2.5-flare -p "a cat astronaut"
 ```
 
@@ -367,6 +404,10 @@ uv tool upgrade gpt-image-cli
 | `--moderation` | `auto` · `low` | `low` | 生成 | 这里默认用 `low`，更适合广泛探索提示词；如果你想回到更严格的 API 侧默认行为，就手动切到 `auto`。 |
 | `--format` | `png` · `jpeg` · `webp` | `png` | 两者 | 响应编码格式。 |
 | `--compression` | 0-100 | 不传 | 两者 | 仅适用于 JPEG/WebP。 |
+| `--base-url` | URL 字符串 | 读取 `OPENAI_BASE_URL` | 两者 | 第三方 OpenAI 兼容中转站地址（如 `https://jp.xcli.si/v1`）。 |
+| `--api-key` | 字符串 | 读取 `OPENAI_API_KEY` | 两者 | 临时覆盖 API Key（推荐在 `~/.codex/.env` 中配置）。 |
+| `--preview` | `auto` · `osc1337` · `kitty` · `open` · `off` | `off` | 两者 | 在支持图形协议的 TUI 终端内联预览图片或调用系统看图软件。 |
+| `--open` | 布尔标志 | `false` | 两者 | 生成后自动用系统默认看图器打开。 |
 
 </details>
 

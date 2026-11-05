@@ -6,8 +6,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/wuyoscar/gpt_image_2_skill/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"/></a>
-  <a href="https://github.com/wuyoscar/gpt_image_2_skill/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"/></a>
+  <a href="https://github.com/Masikomoore/GPT-Image2-Skill/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"/></a>
+  <a href="https://github.com/Masikomoore/GPT-Image2-Skill/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"/></a>
   <img src="https://img.shields.io/badge/models-GPT%20Image%202%20%2F%202.5-purple.svg" alt="Models: GPT Image 2 / 2.5"/>
   <img src="https://img.shields.io/badge/python-%E2%89%A53.11-blue.svg" alt="Python ≥ 3.11"/>
 </p>
@@ -36,11 +36,11 @@
   </tr>
   <tr>
     <td>Surfaces</td>
-    <td><strong>2 Agent Skills + CLI</strong>: Claude Code / Codex, OpenClaw, Hermes Agent and other skill-capable agent runtimes</td>
+    <td><strong>2 Agent Skills + CLI + Third-Party Relay Support</strong>: Codex, WorkBuddy, CodeBuddy, Claude Code, Cursor, Cline, Roo Code, OpenCode, Pi, OpenClaw, Hermes Agent, with GUI Markdown & TUI inline image preview</td>
   </tr>
   <tr>
     <td>Last update</td>
-    <td><strong>2026-09-10</strong></td>
+    <td><strong>2026-11-05</strong></td>
   </tr>
   <tr>
     <td>Docs</td>
@@ -202,7 +202,38 @@ Under the hood: `POST /v1/images/edits` (multipart form). GPT Image 2 and both 2
 <a id="install"></a>
 
 ## 📥 Install
-Choose either skill or install both: `gpt-image` generates and edits images, while `get-prompt-from-image` extracts prompts from reference images.
+Install both `gpt-image` (image generation & editing) and `get-prompt-from-image` (reverse-prompt extraction) across **Codex, WorkBuddy, CodeBuddy, Claude Code, Cursor, Cline, Roo Code, OpenCode, Pi, OpenClaw, and Hermes Agent**, with first-class support for **third-party OpenAI-compatible relays** (such as `https://jp.xcli.si/v1` and `https://us.xcli.si/v1`).
+
+### Option 1: One-Command Interactive Terminal Install (For Humans)
+
+Run this single command in your terminal. It automatically detects installed IDE/CLI clients, installs the skills, and interactively prompts for your relay `OPENAI_BASE_URL` and hidden `OPENAI_API_KEY`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh
+```
+
+Windows PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.ps1 | iex
+```
+
+### Option 2: One-Sentence AI Agent Install (Codex / WorkBuddy / Claude Code / Cursor)
+
+Paste this single sentence to your AI Agent (it installs the skills in non-interactive mode without asking for secrets in chat, and prints the `.env` file path for you to fill in locally):
+
+```text
+Install https://github.com/Masikomoore/GPT-Image2-Skill by running `curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh -s -- --agent-mode`, do not ask me for my API key in chat, and tell me the exact .env file path so I can fill in OPENAI_BASE_URL and OPENAI_API_KEY myself.
+```
+
+### 🔑 Third-Party Relay & `.env` Configuration
+
+By default, credentials are read from `~/.codex/.env` (as well as `~/.workbuddy/.env`, `<skill>/.env`, `./.env`, and `~/.env`):
+
+```dotenv
+OPENAI_BASE_URL=https://jp.xcli.si/v1
+OPENAI_API_KEY=your_relay_api_key_here
+```
 
 Check for an existing skill or CLI before installing. Preserve existing skill folders and API-key files. Use your runtime's skill list/status command when available, and ask before installing into a global or shared directory.
 
@@ -216,7 +247,7 @@ test -n "${OPENAI_API_KEY:-}" && echo "OPENAI_API_KEY is already set (value hidd
 <summary><strong>Claude Code</strong></summary>
 
 ```text
-/plugin marketplace add wuyoscar/gpt_image_2_skill
+/plugin marketplace add Masikomoore/GPT-Image2-Skill
 /plugin install gpt-image@wuyoscar-skills
 ```
 
@@ -232,12 +263,12 @@ Open Codex and invoke the built-in installer with the GitHub skill-folder URL fo
 # gpt-image
 $skill-installer
 Install this skill from GitHub:
-https://github.com/wuyoscar/gpt_image_2_skill/tree/main/skills/gpt-image
+https://github.com/Masikomoore/GPT-Image2-Skill/tree/main/skills/gpt-image
 
 # get-prompt-from-image
 $skill-installer
 Install this skill from GitHub:
-https://github.com/wuyoscar/gpt_image_2_skill/tree/main/skills/get-prompt-from-image
+https://github.com/Masikomoore/GPT-Image2-Skill/tree/main/skills/get-prompt-from-image
 ```
 
 The installer downloads each GitHub folder and places it under your Codex skills directory, usually:
@@ -252,8 +283,8 @@ Restart Codex after installation so the new skills are loaded.
 If you prefer to install both manually, copy their skill folders into Codex's skills directory:
 
 ```bash
-git clone https://github.com/wuyoscar/gpt_image_2_skill.git
-cd gpt_image_2_skill
+git clone https://github.com/Masikomoore/GPT-Image2-Skill.git
+cd GPT-Image2-Skill
 
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
 for skill in gpt-image get-prompt-from-image; do
@@ -271,7 +302,7 @@ For runtimes supported by the cross-agent `skills` installer, select either skil
 
 ```bash
 # Change --agent to claude-code, codex, opencode, openclaw, or another supported runtime.
-npx --yes skills@latest add wuyoscar/gpt_image_2_skill \
+npx --yes skills@latest add Masikomoore/GPT-Image2-Skill \
   --skill gpt-image \
   --skill get-prompt-from-image \
   --agent codex --copy
@@ -289,8 +320,8 @@ Other runtimes can use the manual agent-skill installation below.
 Set `AGENT_SKILLS_DIR` to the skills directory used by your agent runtime, then symlink one or both skill folders into it.
 
 ```bash
-git clone https://github.com/wuyoscar/gpt_image_2_skill.git
-cd gpt_image_2_skill
+git clone https://github.com/Masikomoore/GPT-Image2-Skill.git
+cd GPT-Image2-Skill
 
 # Choose the skill directory for your runtime.
 # Examples:
@@ -311,10 +342,10 @@ done
 <summary><strong>CLI</strong></summary>
 
 ```bash
-uvx --from git+https://github.com/wuyoscar/gpt_image_2_skill gpt-image --model gpt-image-2.5-flare -p "a cat astronaut"
+uvx --from git+https://github.com/Masikomoore/GPT-Image2-Skill gpt-image --model gpt-image-2.5-flare -p "a cat astronaut"
 
 # or install to PATH if not already installed
-command -v gpt-image >/dev/null || uv tool install git+https://github.com/wuyoscar/gpt_image_2_skill
+command -v gpt-image >/dev/null || uv tool install git+https://github.com/Masikomoore/GPT-Image2-Skill
 gpt-image --model gpt-image-2.5-flare -p "a cat astronaut"
 ```
 
@@ -366,6 +397,10 @@ Reads `OPENAI_API_KEY` from process env, then `.env`, then `~/.env` without over
 | `--moderation` | `auto` · `low` | `low` | generations | `low` is the default here for broader prompt exploration; switch to `auto` if you want the stricter API-side default. |
 | `--format` | `png` · `jpeg` · `webp` | `png` | both | Response encoding. |
 | `--compression` | 0-100 | omitted | both | JPEG/WebP only. |
+| `--base-url` | URL str | `OPENAI_BASE_URL` | both | OpenAI-compatible relay base URL (e.g. `https://jp.xcli.si/v1`). |
+| `--api-key` | str | `OPENAI_API_KEY` | both | API key override (prefer configuring `~/.codex/.env`). |
+| `--preview` | `auto` · `osc1337` · `kitty` · `open` · `off` | `off` | both | Render inline image in TUI terminals via `/dev/tty` or open viewer. |
+| `--open` | flag | `false` | both | Open generated image(s) in OS default viewer. |
 
 </details>
 
