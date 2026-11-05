@@ -29,6 +29,11 @@
 
 把 **Codex、WorkBuddy、CodeBuddy、Claude Code、Cursor、Cline、Roo Code、OpenCode、Pi、OpenClaw、Hermes Agent** 变成一套完整的 **GPT Image 2.5 / Image 2** 工作室：`gpt-image` 负责生成、编辑和局部重绘，`get-prompt-from-image` 从参考图反推 Prompt，另外还有 **31 类 163 条精选提示词**。原生支持第三方 OpenAI 兼容中转站（`OPENAI_BASE_URL` + `OPENAI_API_KEY`），不用自己拼 `/v1`、也不用和终端里的官方 Key 打架。GUI 客户端直接渲染 Markdown 图片，TUI 终端用 `--preview auto` 内联看图。
 
+> [!NOTE]
+> **善意提醒（中转站地址与渠道能力说明）**
+> 1. **示例地址可任意替换**：本项目文档与安装脚本中出现的 `https://jp.xcli.si/v1`、`https://us.xcli.si/v1` **仅为配置示例**，你可以随时替换为自己使用的任意 OpenAI 兼容中转站地址，或留空直连 OpenAI 官方接口。
+> 2. **高阶参数与自定义尺寸需渠道支持**：文档中的 **2K / 2.5K / 4K 自定义像素尺寸（`WIDTHxHEIGHT`）**、**`xhigh` / `max` 画质档位**以及 **32-bit RGBA 透明背景（`transparent`）** 仅限底层支持原样透传的中转站渠道（例如示例站的 `GPT-IMAGE` 专线分组）生效；常规普通反代 API 不一定支持，可能会降级为固定尺寸或返回 HTTP 400。
+
 > TBH，我觉得 GPT Image 2.5 真的很强。我更愿意给它一个清楚的 reference，比如形状、草图或图片。有时直接展示 PDF 里的版式，比描述半天更有效。这也很像我用 GPT-6 的习惯：**minimize the prompt，把参考给清楚。**
 >
 > 我把用得上的 Prompt、building blocks 和 reference 放在这里，希望能帮你了解 2.5 的工作方式，再挑适合自己的用法。谢谢大家喜欢这个小 gallery 🫶。
@@ -81,15 +86,23 @@
 
 ### 方式 A：给 AI Agent 一句话自动安装（推荐 Codex / WorkBuddy / Claude Code / Cursor 用户）
 
-把下面整段复制发给 Agent。它会跑 `--agent-mode`，**不会在对话里向你要 API Key**，装完后打印 `.env` 的绝对路径（默认 `~/.codex/.env`），你自己本地填即可。
+按你的操作系统复制对应的一句话发给 AI Agent。它会以非交互模式（`--agent-mode`）完成多客户端安装，**不会在对话里向你索要 API Key**，装完后把本机 `.env` 配置文件的真实绝对路径发给你，你打开填好即可使用：
+
+**🍎 macOS / 🐧 Linux（配置文件默认路径：`~/.codex/.env` 或 `~/.workbuddy/.env`）**
 
 ```text
-请帮我安装 https://github.com/Masikomoore/GPT-Image2-Skill ：运行 `curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh -s -- --agent-mode` 完成多客户端安装，不要在对话里向我索要 API Key，安装完成后把生成的 .env 配置文件绝对路径发给我（通常是 ~/.codex/.env），我自己去补全 OPENAI_BASE_URL 和 OPENAI_API_KEY。
+请帮我安装 https://github.com/Masikomoore/GPT-Image2-Skill ：运行 `curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh -s -- --agent-mode` 完成多客户端安装，不要在对话里向我索要 API Key，安装完成后把输出的 ENV_FILE 配置文件绝对路径（通常是 ~/.codex/.env）发给我，我自己去填写 OPENAI_BASE_URL 和 OPENAI_API_KEY。
+```
+
+**🪟 Windows（配置文件默认路径：`%USERPROFILE%\.codex\.env`，即 `C:\Users\<用户名>\.codex\.env`）**
+
+```text
+请帮我安装 https://github.com/Masikomoore/GPT-Image2-Skill ：在 PowerShell 中运行 `$env:GPT_IMAGE_AGENT_MODE='1'; irm https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.ps1 | iex` 完成多客户端安装，不要在对话里向我索要 API Key，安装完成后把输出的 ENV_FILE 配置文件绝对路径（通常是 %USERPROFILE%\.codex\.env）发给我，我自己去填写 OPENAI_BASE_URL 和 OPENAI_API_KEY。
 ```
 
 ### 方式 B：人类终端一条指令互动安装
 
-在自己的终端执行。脚本会检测本机已有客户端，并互动询问中转站地址：`1=https://jp.xcli.si/v1`（亚洲）、`2=https://us.xcli.si/v1`（北美），或直接粘贴自定义 URL；随后隐藏输入 `OPENAI_API_KEY`。
+在自己的终端执行。脚本会检测本机已有客户端，并互动询问中转站地址（`1` = 示例亚洲节点 `https://jp.xcli.si/v1`、`2` = 示例北美节点 `https://us.xcli.si/v1`，或直接粘贴你的任意自定义中转站 URL），随后隐藏输入 `OPENAI_API_KEY`。
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh
@@ -101,9 +114,10 @@ Windows PowerShell：
 irm https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.ps1 | iex
 ```
 
-默认写入 `~/.codex/.env`：
+默认写入 `~/.codex/.env`（macOS / Linux）或 `%USERPROFILE%\.codex\.env`（Windows）：
 
 ```dotenv
+# 以下地址仅为示例，可替换为任意支持 OpenAI Images 接口的中转站地址
 OPENAI_BASE_URL=https://jp.xcli.si/v1
 OPENAI_API_KEY=你的中转站API_KEY
 ```
@@ -353,11 +367,11 @@ photorealistic, 3D render, flat vector style, pure cel shading, watercolor bleed
 
 ### 🎛️ 先选模型
 
-| 模型 | 适合的起点 |
-|---|---|
-| `gpt-image-2.5-flare` | 快速、高质量的日常生图 |
-| `gpt-image-2.5-sunburst` | 精确编辑与参考图工作流 |
-| `gpt-image-2` | 保留已有工作流使用的模型 |
+| 模型 ID | 实测支持分辨率档位 | 自定义 `WIDTHxHEIGHT` | 4K (`3840x2160` / `2160x3840`) | 透明背景 (`RGBA PNG`) | 支持画质 (`quality`) | 适合的起点 |
+|---|---|---|---|---|---|---|
+| `gpt-image-2.5-flare` | 1K / 2K / 2.5K / 4K | 100% 像素级精确遵循（16 倍数） | 完整支持 | 支持（真实 Alpha 通道） | `low`, `medium`, `high`, `xhigh`, `max`, `auto` | 快速、高质量的日常生图与 4K 大图 |
+| `gpt-image-2.5-sunburst` | 1K / 2K / 2.5K / 4K | 100% 像素级精确遵循（16 倍数） | 完整支持 | 支持（真实 Alpha 通道） | `low`, `medium`, `high`, `xhigh`, `max`, `auto` | 精确编辑、多参考图合成与细节控制 |
+| `gpt-image-2` | 1K / 2K / 2.5K（部分节点支持 4K） | 100% 像素级精确遵循（16 倍数） | 部分节点返回 `four_k_disabled`，4K 请用 2.5 系列 | 支持（真实 Alpha 通道） | CLI 限制到 `high` / `auto`（部分中转支持透传更高档） | 保留已有 Image 2 工作流 |
 
 当用户没指定模型，或只说“GPT 2.5”等不明确名称时，Skill 会先提供上述选项，确认后再生成。明确选择支持的模型后即可继续。Skill 始终显式传入 `--model`；独立 CLI 仍默认使用 `gpt-image-2`。更换模型或增加出图数量前，先征得用户同意。
 
@@ -435,6 +449,21 @@ gpt-image --model gpt-image-2.5-sunburst -p "将天空替换为极光" \
 </details>
 
 ### 分辨率快捷写法
+
+> **重要提示**：自定义像素尺寸（`WIDTHxHEIGHT`）与 2K / 2.5K / 4K 出图仅限支持高分透传的中转站渠道（如示例站 `GPT-IMAGE` 分组），普通反代 API 不一定支持。合法自定义尺寸必须同时满足 **4 条硬性规则**：
+> 1. **宽和高均须为 16 的整数倍**：例如 `1920x1080` 中 `1080 ÷ 16 = 67.5`（余 8），会被直接拒绝返回 HTTP 400；16:9 横图请改用 `2048x1152`、`2560x1440` 或 `3840x2160`。
+> 2. **宽高比范围在 `1:3` 到 `3:1` 之间**。
+> 3. **单边最大像素不超过 `3840`**。
+> 4. **总像素数在 `655,360` 到 `8,294,400` 之间**：`3840 × 2160 = 8,294,400` 刚好顶满上限；1:1 方图受总像素上限约束，4K 极限尺寸为 `2880x2880`（而非 `3840x3840`）；若传 `3840x3096`（总像素 1188 万且 3096 不能被 16 整除）会报错 400，同比例最近合法尺寸为 `2560x2064` 或 `3264x2448`。
+
+#### 常用 2K / 2.5K / 4K 合法尺寸与网关计费分档速查表
+
+| 画面比例 | 2K 档常用尺寸 | 2.5K 自定义尺寸 | 4K 极限尺寸 | 支持高分透传网关的计费分档（按最长边） |
+|---|---|---|---|---|
+| **16:9 横图** | `2048x1152` (`2k-landscape`) | `2560x1440` (`2.5k`) | `3840x2160` (`4k`) | `2048x1152` 按 **2K** 计费；`2560x1440` 与 `3840x2160` 按 **4K** 计费 |
+| **9:16 竖图** | `1152x2048` (`2k-portrait`) | `1440x2560` (`2.5k-portrait`) | `2160x3840` (`4k-portrait`) | `1152x2048` 按 **2K** 计费；`1440x2560` 与 `2160x3840` 按 **4K** 计费 |
+| **1:1 方图** | `2048x2048` (`2k`) | `2560x2560` (`2.5k-square`) | `2880x2880` (`4k-square`) | `2048x2048` 按 **2K** 计费；最长边 `>2048` 按 **4K** 计费 |
+| **4:3 / 5:4** | `2048x1536` (`2k-4:3`) | `2560x2064` (`2.5k-4:3`) | `3264x2448` (`4k-4:3`) | 最长边 `≤1024` 为 **1K**，`1025–2048` 为 **2K**，`>2048` 为 **4K** |
 
 | 快捷写法 | 像素 |
 |---|---|
@@ -560,7 +589,7 @@ result = client.images.generate(
 
 **Q：`OPENAI_API_KEY` 和 `OPENAI_BASE_URL` 在哪里配置？读取优先级是什么？**
 
-默认写在 `~/.codex/.env`（也认 `~/.workbuddy/.env`、`<skill>/.env`、`./.env`、`~/.env` 等）。常见写法：
+macOS / Linux 默认写在 `~/.codex/.env`，Windows 默认写在 `%USERPROFILE%\.codex\.env`（即 `C:\Users\<用户名>\.codex\.env`；同时也支持 `~/.workbuddy/.env`、`<skill>/.env`、`./.env`、`~/.env`）。示例写法（地址可替换为任意中转站）：
 
 ```dotenv
 OPENAI_BASE_URL=https://jp.xcli.si/v1
@@ -590,6 +619,19 @@ gpt-image --model gpt-image-2 -p "沿用旧工作流"
 ```
 
 在 Agent 里直接说要用哪一个。没说清、或只说“GPT 2.5”时，Skill 会先让你选，确认后再出图。独立 CLI 默认仍是 `gpt-image-2`；`xhigh` / `max` 质量档只对两个 2.5 模型有效。
+
+**Q：为什么传 `1920x1080` 或 `3840x3096` 会返回 HTTP 400（或被 CLI 拦截）？**
+
+宽高必须同时为 **16 的整数倍**，且总像素不能超过 **8,294,400**。`1920x1080` 的高度 `1080` 不能被 16 整除（余 8），请改用 `2048x1152`（2K）或 `2560x1440`（2.5K）；`3840x3096` 的 `3096` 不能被 16 整除且总像素（1188 万）超过 829 万上限，请改用 `3840x2160`（16:9 4K）或 `2560x2064` / `3264x2448`。
+
+**Q：为什么调用 `gpt-image-2` 生成 `3840x2160` 时报错 `four_k_disabled`（4K图片暂时不能生成）？**
+
+承载 `gpt-image-2` 的部分上游节点仅开放到 2K / 2.5K，对 4K 分辨率会返回 `400 four_k_disabled`。需要生成 `3840x2160`、`2160x3840` 或 `2880x2880` 等 4K 图像时，请直接选用 `gpt-image-2.5-flare` 或 `gpt-image-2.5-sunburst`（且 2K/4K 高分生图建议保持 `-n 1`）。
+
+**Q：为什么有时响应里是 `b64_json`，有时是 `url`？为什么传了 `--format webp` 底层还是 PNG？**
+
+- **双字段负载均衡**：高分生图分组通常由多个节点负载均衡承载，部分节点内联返回 Base64（`b64_json`），部分节点返回对象存储预签名链接（`url`）。本 CLI 已内置双字段自动识别与带 `User-Agent: Mozilla/5.0` 的下载逻辑。
+- **无损 PNG 管线**：部分支持 2K/4K 的高分渲染管线（如 `GPT-IMAGE` 分组）底层固定输出无损 32-bit PNG 二进制（文件头 `89 50 4E 47`），即使请求 `webp` 返回的仍是 PNG；如需透明背景，请使用 `--background transparent --format png`。
 
 <a id="gallery-index"></a>
 

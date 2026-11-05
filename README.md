@@ -37,6 +37,11 @@ Two agent skills plus a CLI that give **Codex, WorkBuddy, CodeBuddy, Claude Code
 
 First-class **OpenAI-compatible third-party relay** support (`OPENAI_BASE_URL` + `OPENAI_API_KEY`). GUI clients render `![alt](/abs/path.png)` inline in chat. TUI terminals (iTerm2, WezTerm, Warp, Konsole, Kitty, Ghostty) can show the image in-place via `--preview auto` without polluting `stdout`.
 
+> [!NOTE]
+> **Friendly Reminder (Example Relay URLs & Channel Capabilities)**
+> 1. **Relay URLs are examples only**: Endpoints such as `https://jp.xcli.si/v1` and `https://us.xcli.si/v1` shown in this repo and installer are **examples only**. You can replace `OPENAI_BASE_URL` with any OpenAI-compatible relay endpoint, or leave it unset to connect to official OpenAI directly.
+> 2. **Custom parameters & high-res dimensions depend on your relay channel**: Custom parameters (`quality` = `xhigh` / `max`, 32-bit RGBA `background` = `transparent`) and pixel-exact **2K / 2.5K / 4K custom dimensions (`WIDTHxHEIGHT`)** only work on relay channels that support high-resolution pass-through (such as the `GPT-IMAGE` dedicated group). Ordinary reverse-proxy APIs may not support them and may rescale to fixed sizes or return HTTP 400.
+
 <table border="1" cellspacing="0" cellpadding="6">
   <tr>
     <th align="left">Item</th>
@@ -100,15 +105,24 @@ Installs both `gpt-image` and `get-prompt-from-image` for the clients above, wit
 
 ### Option A: one-sentence AI agent install (recommended for Codex / WorkBuddy / Claude Code / Cursor)
 
-Paste this into the agent. It runs non-interactively, **never asks for the API key in chat**, and prints the exact `.env` path (`~/.codex/.env`) for you to fill in locally:
+Copy the prompt matching your operating system and send it to your AI Agent. It runs in non-interactive mode (`--agent-mode`), **never asks for your API key in chat**, and prints the exact `.env` file path on your machine for you to fill in locally:
+
+**🍎 macOS / 🐧 Linux (default `.env` path: `~/.codex/.env` or `~/.workbuddy/.env`)**
 
 ```text
-Install https://github.com/Masikomoore/GPT-Image2-Skill by running `curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh -s -- --agent-mode`, do not ask me for my API key in chat, and tell me the exact .env file path so I can fill in OPENAI_BASE_URL and OPENAI_API_KEY myself.
+Install https://github.com/Masikomoore/GPT-Image2-Skill by running `curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh -s -- --agent-mode`, do not ask me for my API key in chat, and tell me the exact ENV_FILE path printed by the installer (usually ~/.codex/.env) so I can fill in OPENAI_BASE_URL and OPENAI_API_KEY myself.
 ```
 
-Then edit the printed path, usually `~/.codex/.env`:
+**🪟 Windows PowerShell (default `.env` path: `%USERPROFILE%\.codex\.env`, i.e. `C:\Users\<You>\.codex\.env`)**
+
+```text
+Install https://github.com/Masikomoore/GPT-Image2-Skill by running `$env:GPT_IMAGE_AGENT_MODE='1'; irm https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.ps1 | iex` in PowerShell, do not ask me for my API key in chat, and tell me the exact ENV_FILE path printed by the installer (usually %USERPROFILE%\.codex\.env) so I can fill in OPENAI_BASE_URL and OPENAI_API_KEY myself.
+```
+
+Then edit the printed `.env` path (`~/.codex/.env` on macOS/Linux or `%USERPROFILE%\.codex\.env` on Windows):
 
 ```dotenv
+# Example relay URL below — replace with any OpenAI-compatible relay URL
 OPENAI_BASE_URL=https://jp.xcli.si/v1
 OPENAI_API_KEY=your_relay_api_key_here
 ```
@@ -370,11 +384,11 @@ photorealistic, 3D render, flat vector style, pure cel shading, watercolor bleed
 
 ### Choose a model
 
-| Model | Best starting point |
-|---|---|
-| `gpt-image-2.5-flare` | Fast, high-quality everyday generation |
-| `gpt-image-2.5-sunburst` | Precise edits and reference-image workflows |
-| `gpt-image-2` | Keep the model used by existing workflows |
+| Model ID | Verified Resolution Range | Custom `WIDTHxHEIGHT` | 4K (`3840x2160` / `2160x3840`) | Transparent PNG (`RGBA`) | Quality Values | Best starting point |
+|---|---|---|---|---|---|---|
+| `gpt-image-2.5-flare` | 1K / 2K / 2.5K / 4K | Pixel-exact (16px step) | Supported | Supported (`alpha=True`) | `low`, `medium`, `high`, `xhigh`, `max`, `auto` | Fast, high-quality everyday generation & 4K |
+| `gpt-image-2.5-sunburst` | 1K / 2K / 2.5K / 4K | Pixel-exact (16px step) | Supported | Supported (`alpha=True`) | `low`, `medium`, `high`, `xhigh`, `max`, `auto` | Precise edits, multi-reference workflows & 4K |
+| `gpt-image-2` | 1K / 2K / 2.5K (4K node-dependent) | Pixel-exact (16px step) | Some nodes return `four_k_disabled`; use 2.5 for 4K | Supported (`alpha=True`) | CLI enforces up to `high` / `auto` | Keep the model used by existing workflows |
 
 The Skill offers this menu when the model is missing or ambiguous (for example, “GPT 2.5”), then confirms the choice before generating. An exact supported model choice proceeds directly. `gpt-image-2.5` is not an API model ID. The Skill always passes an explicit `--model`; the standalone CLI still defaults to `gpt-image-2`. Changing models or adding outputs requires the user's approval.
 
@@ -454,6 +468,21 @@ GUI clients should also embed the saved file as Markdown with its absolute path.
 </details>
 
 ### Size shortcuts
+
+> **Note on custom resolutions (`WIDTHxHEIGHT`) & channel support**: Custom 2K / 2.5K / 4K dimensions require a relay channel that supports pass-through high-resolution rendering (e.g. the `GPT-IMAGE` group). Every custom `WIDTHxHEIGHT` must satisfy **4 constraints**:
+> 1. **Divisible by 16**: Both width and height must be exact multiples of 16 (`1920x1080` fails with HTTP 400 because `1080 ÷ 16 = 67.5`; use `2048x1152`, `2560x1440`, or `3840x2160` instead).
+> 2. **Aspect ratio between `1:3` and `3:1`**.
+> 3. **Maximum single edge `≤ 3840 px`**.
+> 4. **Total pixel count between `655,360` and `8,294,400`** (`3840 × 2160 = 8,294,400` hits the exact ceiling; `1:1` 4K square maxes out at `2880x2880`; `3840x3096` fails because `3096` is not divisible by 16 and `11.88M` pixels exceeds `8.29M` — use `2560x2064` or `3264x2448`).
+
+#### Verified 2K / 2.5K / 4K Dimensions & Gateway Billing Tiers
+
+| Aspect Ratio | 2K (16px-aligned) | 2.5K (16px-aligned) | 4K (Max Ceiling) | Gateway Billing Tier (by longest edge) |
+|---|---|---|---|---|
+| **16:9 Landscape** | `2048x1152` (`2k-landscape`) | `2560x1440` (`2.5k`) | `3840x2160` (`4k`) | `2048x1152` → **2K**; `2560x1440` & `3840x2160` → **4K** |
+| **9:16 Portrait** | `1152x2048` (`2k-portrait`) | `1440x2560` (`2.5k-portrait`) | `2160x3840` (`4k-portrait`) | `1152x2048` → **2K**; `1440x2560` & `2160x3840` → **4K** |
+| **1:1 Square** | `2048x2048` (`2k`) | `2560x2560` (`2.5k-square`) | `2880x2880` (`4k-square`) | `2048x2048` → **2K**; longest edge `>2048` → **4K** |
+| **4:3 / 5:4** | `2048x1536` (`2k-4:3`) | `2560x2064` (`2.5k-4:3`) | `3264x2448` (`4k-4:3`) | `≤1024` → **1K**, `1025–2048` → **2K**, `>2048` → **4K** |
 
 | Shortcut | Pixels |
 |---|---|
@@ -581,7 +610,7 @@ English-language official sources and established publications first, developer 
 
 **Where do I set `OPENAI_API_KEY` and `OPENAI_BASE_URL`?**
 
-Prefer `~/.codex/.env` (agent-mode prints this path). The same pair also works in `./.env`, `<skill>/.env`, `~/.workbuddy/.env`, `~/.codebuddy/.env`, `~/.claude/.env`, `~/.cursor/.env`, `~/.agents/.env`, or `~/.env`. Example:
+Prefer `~/.codex/.env` on macOS/Linux or `%USERPROFILE%\.codex\.env` (`C:\Users\<You>\.codex\.env`) on Windows (`--agent-mode` prints the exact path). The same pair also works in `./.env`, `<skill>/.env`, `~/.workbuddy/.env`, `~/.codebuddy/.env`, `~/.claude/.env`, `~/.cursor/.env`, `~/.agents/.env`, or `~/.env`. Example (replace the URL with any relay you use):
 
 ```dotenv
 OPENAI_BASE_URL=https://jp.xcli.si/v1
@@ -613,6 +642,18 @@ Both. Leave `OPENAI_BASE_URL` unset for the official API, or point it at any Ope
 **Can I inpaint and use several reference images?**
 
 Yes. Repeat `-i` for multi-reference edits. Add `-m mask.png` for alpha-mask inpainting (opaque keep / transparent regenerate). Masks require at least one `-i`.
+
+**Why does `1920x1080` or `3840x3096` fail with HTTP 400?**
+
+Both width and height must be divisible by 16, and total pixels cannot exceed `8,294,400`. In `1920x1080`, `1080` is not divisible by 16 (remainder 8) — use `2048x1152` or `2560x1440`. In `3840x3096`, `3096` is not divisible by 16 and `11,888,640` pixels exceeds `8,294,400` — use `3840x2160`, `2560x2064`, or `3264x2448`.
+
+**Why does `gpt-image-2` return `400 four_k_disabled` on `3840x2160`?**
+
+Some upstream nodes serving `gpt-image-2` cap generation at 2K / 2.5K and return `four_k_disabled` on 4K resolutions. Switch `--model` to `gpt-image-2.5-flare` or `gpt-image-2.5-sunburst` for full 4K support (and keep `-n 1` for 2K/4K requests).
+
+**Why are decoded bytes still PNG when `--format webp` is passed on some high-res relays?**
+
+High-resolution rendering pipelines in groups such as `GPT-IMAGE` output lossless 32-bit PNG bytes (`89 50 4E 47` header) regardless of `output_format`. When `--background transparent` is set, they return a genuine 32-bit RGBA PNG (`alpha=True`).
 
 <a id="gallery-index"></a>
 

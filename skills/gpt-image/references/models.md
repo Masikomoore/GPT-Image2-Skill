@@ -9,9 +9,9 @@ optional; use [migration notes](openai-image-2.5-migration.md) only for comparis
 
 | Choice | Exact API model ID | Typical use |
 |---|---|---|
-| Flare | `gpt-image-2.5-flare` | Fast, everyday generation |
-| Sunburst | `gpt-image-2.5-sunburst` | Precise edits and detail-sensitive work |
-| Image 2 | `gpt-image-2` | Existing workflows and explicit compatibility requests |
+| Flare | `gpt-image-2.5-flare` | Fast, everyday generation; full 1K / 2K / 2.5K / 4K support |
+| Sunburst | `gpt-image-2.5-sunburst` | Precise edits and detail-sensitive work; full 1K / 2K / 2.5K / 4K support |
+| Image 2 | `gpt-image-2` | Existing workflows (1K / 2K / 2.5K; some relay nodes return `four_k_disabled` on 4K—prefer 2.5 for 4K) |
 
 The 2.5 models also have snapshots ending in `-2026-09-08`. There is no documented
 bare `gpt-image-2.5` API alias. A name such as “GPT 2.5” is a request to clarify,
@@ -49,7 +49,7 @@ endpoints. No Responses API migration is needed.
 
 For Image 2 and 2.5, both edges must be positive multiples of 16 and at most
 3840 pixels, the long/short ratio at most 3:1, and total pixels between 655,360
-and 8,294,400 inclusive. Above 2560×1440 is experimental. A size shortcut controls
+and 8,294,400 inclusive (`3840 × 2160 = 8,294,400` hits the exact ceiling; `1920x1080` fails because `1080` is not divisible by 16—use `2048x1152`, `2560x1440`, or `3840x2160`; `1:1` 4K ceiling is `2880x2880`). Above 2560×1440 is experimental. A size shortcut controls
 the actual request; saying “4K” inside a prompt does not set the API dimensions.
 
 For references, repeat `-i`; for a mask, use `-i` plus `-m`. Validate the actual
@@ -70,7 +70,10 @@ existence; that alone does not prove valid format, alpha channel, or size.
   returned usage for the selected model, size, and quality. Do not promise a
   fixed multiplier per quality level or assume Flare is always cheaper.
 - **Output & Relay compatibility:** save `data[].b64_json` when returned, or download `data[].url` with `User-Agent: Mozilla/5.0` when a load-balanced relay node returns a pre-signed URL. Do not add `response_format` for GPT Image models.
-- **Third-party relays (`OPENAI_BASE_URL`):** set `OPENAI_BASE_URL` (for example `https://jp.xcli.si/v1` or `https://us.xcli.si/v1`) and `OPENAI_API_KEY` in `~/.codex/.env`, `~/.workbuddy/.env`, `<skill>/.env`, or `./.env`. Bare relay hosts are normalized to `/v1`.
+- **Third-party relays (`OPENAI_BASE_URL`):** `https://jp.xcli.si/v1` and `https://us.xcli.si/v1` are example relay endpoints; you can replace `OPENAI_BASE_URL` with any OpenAI-compatible relay in `~/.codex/.env` (`%USERPROFILE%\.codex\.env` on Windows), `~/.workbuddy/.env`, `<skill>/.env`, or `./.env`. Bare relay hosts are normalized to `/v1`.
+- **Relay channel capability notes (verified against `https://xcli.si/docs/gpt-image`):**
+  - Custom parameters (`xhigh`/`max`, `transparent` 32-bit RGBA PNG) and custom pixel-exact 2K/2.5K/4K sizes require a relay channel that supports pass-through high-resolution rendering (e.g., the `GPT-IMAGE` group); ordinary reverse-proxy APIs may not support them.
+  - On `GPT-IMAGE` high-res relay pipelines, billing tier is classified by the longest edge (`≤1024` as 1K, `1025–2048` as 2K, `>2048` including `2560x1440` and `3840x2160` as 4K), and nodes output lossless PNG bytes (`89 50 4E 47` header) even if `output_format="webp"` is requested. Recommend `-n 1` for 2K/4K requests.
 
 ## Validation boundary
 

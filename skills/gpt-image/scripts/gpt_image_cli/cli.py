@@ -373,7 +373,10 @@ def parse_args() -> argparse.Namespace:
         if (min(width, height) <= 0 or max(width, height) > 3840
                 or width % 16 or height % 16 or max(width, height) > 3 * min(width, height)
                 or not 655360 <= width * height <= 8294400):
-            p.error("--size requires 16px multiples, edges <=3840px, aspect ratio <=3:1, and 655360–8294400 pixels")
+            p.error(
+                "--size requires 16px multiples, edges <=3840px, aspect ratio <=3:1, and 655360–8294400 pixels "
+                "(e.g. use 2048x1152, 2560x1440, or 3840x2160 instead of 1920x1080; 2880x2880 for 4K square)"
+            )
     return args
 
 

@@ -15,12 +15,17 @@ Supports two modes:
 from __future__ import annotations
 
 import argparse
+import getpass
 import os
 import shutil
 import sys
-import termios
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
+
+try:
+    import termios
+except ImportError:  # Windows
+    termios = None  # type: ignore[assignment]
 
 DEFAULT_BASE_URL = "https://jp.xcli.si/v1"
 PLACEHOLDER_API_KEY = "YOUR_API_KEY_HERE"
@@ -267,8 +272,10 @@ class ConsoleIO:
             self.interactive = True
             return
         try:
-            self.tty_in = open("/dev/tty", "r", encoding="utf-8", errors="replace")
-            self.tty_out = open("/dev/tty", "w", encoding="utf-8", errors="replace")
+            in_dev = "CONIN$" if os.name == "nt" else "/dev/tty"
+            out_dev = "CONOUT$" if os.name == "nt" else "/dev/tty"
+            self.tty_in = open(in_dev, "r", encoding="utf-8", errors="replace")
+            self.tty_out = open(out_dev, "w", encoding="utf-8", errors="replace")
             self.interactive = True
         except OSError:
             self.close()
@@ -295,6 +302,11 @@ class ConsoleIO:
     def prompt_secret(self, message: str) -> str:
         if not self.interactive or self.tty_in is None or self.tty_out is None:
             return ""
+        if termios is None:
+            try:
+                return getpass.getpass(message, stream=self.tty_out).strip()
+            except Exception:
+                return self.prompt_line(message)
         self.tty_out.write(message)
         self.tty_out.flush()
         fd = self.tty_in.fileno()
@@ -417,6 +429,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    if os.environ.get("GPT_IMAGE_AGENT_MODE", "").strip().lower() in ("1", "true", "yes"):
+        args.non_interactive = True
     repo_root = Path(args.repo_root).expanduser().resolve() if args.repo_root else Path(__file__).resolve().parents[1]
     sync_vendored_cli(repo_root)
 

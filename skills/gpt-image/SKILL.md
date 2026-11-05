@@ -25,9 +25,9 @@ Fast path: confirmed 2.5 model + precise prompt + “generate now” → preflig
 
 | Choice | API model ID | Suggested use |
 |---|---|---|
-| Flare | `gpt-image-2.5-flare` | Fast general generation and drafts |
-| Sunburst | `gpt-image-2.5-sunburst` | Precise reference edits and detailed control |
-| Image 2 | `gpt-image-2` | Existing Image 2 workflows and compatibility |
+| Flare | `gpt-image-2.5-flare` | Fast general generation, drafts, and full 1K / 2K / 2.5K / 4K support |
+| Sunburst | `gpt-image-2.5-sunburst` | Precise reference edits, detailed control, and full 1K / 2K / 2.5K / 4K support |
+| Image 2 | `gpt-image-2` | Existing Image 2 workflows (1K / 2K / 2.5K; some relay nodes return `four_k_disabled` on 4K—use 2.5 for 4K) |
 
 - If the model is absent, ambiguous (such as “GPT 2.5”), or misspelled, ask one clear question offering **Flare, Sunburst, and Image 2** with these trade-offs, then wait. For a typo, suggest the likely intended choice without silently correcting it. Do not treat `gpt-image-2.5` as an API model ID.
 - Use an exact supported model ID, an unambiguous choice from this menu, or the user's already confirmed choice for the current task without asking again. If the user explicitly says “you choose,” explain the pick briefly and proceed; consider their task and budget rather than always selecting the most expensive settings.
@@ -55,10 +55,14 @@ uvx --from git+https://github.com/Masikomoore/GPT-Image2-Skill gpt-image --model
 
 ## Relay, key, and installation rules
 
+- **Example relay URLs**: `https://jp.xcli.si/v1` and `https://us.xcli.si/v1` are used only as examples; users can set `OPENAI_BASE_URL` to any OpenAI-compatible relay or leave it unset for official OpenAI.
+- **Channel capability boundary**: Custom high-tier parameters (`quality` = `xhigh`/`max`, `background` = `transparent`) and pixel-exact 2K / 2.5K / 4K custom resolutions (`WIDTHxHEIGHT`) require a relay channel that supports pass-through high-resolution rendering (e.g. the `GPT-IMAGE` group on Xcli.si). Ordinary reverse-proxy APIs may not support them.
 - CLI reads `OPENAI_API_KEY` and optional `OPENAI_BASE_URL` (e.g. `https://jp.xcli.si/v1` or `https://us.xcli.si/v1`) from:
   `process env` → `./.env` → `<skill_dir>/.env` → `${CODEX_HOME:-~/.codex}/.env` → `~/.workbuddy/.env` → `~/.codebuddy/.env` → `~/.claude/.env` → `~/.cursor/.env` → `~/.agents/.env` → `~/.env`.
 - Also recognizes `GPT_IMAGE_API_KEY` / `XCLI_API_KEY` and `GPT_IMAGE_BASE_URL` / `XCLI_BASE_URL`. Bare relay URLs (like `https://jp.xcli.si`) are automatically normalized to `/v1`.
-- When the user asks an AI agent to install this skill, run the non-interactive installer (`curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh -s -- --agent-mode` or `python3 scripts/setup_skill.py --agent-mode`), do **not** ask the user to paste their API key into chat, and return the printed `.env` path (`~/.codex/.env`) so the user can fill in `OPENAI_BASE_URL` and `OPENAI_API_KEY` locally.
+- When the user asks an AI agent to install this skill, run the OS-appropriate non-interactive installer, do **not** ask the user to paste their API key into chat, and return the exact printed `.env` path (`~/.codex/.env` on macOS/Linux, `%USERPROFILE%\.codex\.env` on Windows) so the user can fill in `OPENAI_BASE_URL` and `OPENAI_API_KEY` locally:
+  - **macOS / Linux**: `curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh -s -- --agent-mode`
+  - **Windows (PowerShell)**: `$env:GPT_IMAGE_AGENT_MODE=1; irm https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.ps1 | iex`
 - If host/runtime has native platform-managed image generation and the user wants that path, use the host tool instead of this CLI.
 - If `OPENAI_API_KEY` is unset or still set to `YOUR_API_KEY_HERE`, stop and tell the user which `.env` file to edit (`~/.codex/.env`); never print secret values.
 - If user wants to avoid local-key use, respect `unset OPENAI_API_KEY`; if a key exists in `.env`/`~/.env`, tell them to remove/rename it for the session rather than working around it.
