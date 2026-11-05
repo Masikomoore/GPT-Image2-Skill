@@ -1,29 +1,41 @@
-<h1 align="center">GPT Image 2/2.5 Prompt Gallery + Agent Skills + CLI</h1>
-<p align="center"><em>Prompts, reference images, two agent skills and a CLI for GPT Image 2 and 2.5.</em></p>
+<h1 align="center">GPT Image 2.5 for Codex, Claude Code, Cursor &amp; 9 more agents</h1>
+<p align="center"><em>Generate, multi-reference edit, alpha-mask inpaint, and reverse-prompt with GPT Image 2.5 (<code>gpt-image-2.5-flare</code>, <code>gpt-image-2.5-sunburst</code>) and GPT Image 2. 163 curated prompts across 31 categories. Official OpenAI or any OpenAI-compatible relay. GUI Markdown + TUI inline preview.</em></p>
 
 <p align="center">
   <a href="README.md"><strong>English</strong></a> · <a href="README.zh.md">中文</a>
 </p>
 
 <p align="center">
+  <a href="https://github.com/Masikomoore/GPT-Image2-Skill/stargazers"><img src="https://img.shields.io/github/stars/Masikomoore/GPT-Image2-Skill?style=flat" alt="GitHub stars"/></a>
   <a href="https://github.com/Masikomoore/GPT-Image2-Skill/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"/></a>
   <a href="https://github.com/Masikomoore/GPT-Image2-Skill/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"/></a>
   <img src="https://img.shields.io/badge/models-GPT%20Image%202%20%2F%202.5-purple.svg" alt="Models: GPT Image 2 / 2.5"/>
   <img src="https://img.shields.io/badge/python-%E2%89%A53.11-blue.svg" alt="Python ≥ 3.11"/>
+  <img src="https://img.shields.io/badge/relay-OpenAI--compatible-orange.svg" alt="OpenAI-compatible relay ready"/>
+  <img src="https://img.shields.io/badge/agents-12%2B%20IDE%20%2F%20CLI-blueviolet.svg" alt="12+ IDE and CLI clients"/>
 </p>
-
 
 <p align="center">
   <a href="docs/assets/gptimage2skill-banner.png"><img src="docs/assets/gptimage2skill-banner.png" alt="GPTImage2Skill banner" width="100%"/></a>
 </p>
 
 <p align="center">
-  <a href="#overview">Overview</a> · <a href="#sunburst-samples">2.5 samples</a> · <a href="#image-example">Example</a> · <a href="#quickstart">Quick start</a> · <a href="#install">Install</a> · <a href="#cli-reference">CLI reference</a> · <a href="#guides">Guides</a> · <a href="#gallery-index">Gallery</a> · <a href="#community">Contribute</a>
+  <a href="#overview">Overview</a> · <a href="#install">Install</a> · <a href="#sunburst-samples">2.5 samples</a> · <a href="#image-example">Example</a> · <a href="#quickstart">Quick start</a> · <a href="#cli-reference">CLI reference</a> · <a href="#guides">Guides</a> · <a href="#faq">FAQ</a> · <a href="#gallery-index">Gallery</a> · <a href="#community">Contribute</a>
 </p>
 
 <a id="overview"></a>
 
-## 🧭 What about this Repo
+## What this repo is
+
+Two agent skills plus a CLI that give **Codex, WorkBuddy, CodeBuddy, Claude Code, Cursor, Cline, Roo Code, OpenCode, Pi, OpenClaw, and Hermes Agent** GPT Image 2.5 and GPT Image 2:
+
+- **Generate** from text (`POST /v1/images/generations`)
+- **Edit** from one or more reference images (`POST /v1/images/edits`)
+- **Inpaint** with an alpha-channel mask (`gpt-image`, opaque = keep, transparent = regenerate)
+- **Reverse a prompt** from a reference image (`get-prompt-from-image`)
+- **163 curated prompts** across 31 categories, ready to paste into the CLI or ask for in natural language
+
+First-class **OpenAI-compatible third-party relay** support (`OPENAI_BASE_URL` + `OPENAI_API_KEY`). GUI clients render `![alt](/abs/path.png)` inline in chat. TUI terminals (iTerm2, WezTerm, Warp, Konsole, Kitty, Ghostty) can show the image in-place via `--preview auto` without polluting `stdout`.
 
 <table border="1" cellspacing="0" cellpadding="6">
   <tr>
@@ -31,12 +43,24 @@
     <th align="left">Value</th>
   </tr>
   <tr>
-    <td>Gallery size</td>
-    <td><strong>163 numbered entries</strong> across 31 categories, with selected images below</td>
+    <td>Gallery</td>
+    <td><strong>163 numbered entries</strong> across 31 categories</td>
   </tr>
   <tr>
-    <td>Surfaces</td>
-    <td><strong>2 Agent Skills + CLI + Third-Party Relay Support</strong>: Codex, WorkBuddy, CodeBuddy, Claude Code, Cursor, Cline, Roo Code, OpenCode, Pi, OpenClaw, Hermes Agent, with GUI Markdown & TUI inline image preview</td>
+    <td>Skills</td>
+    <td><code>gpt-image</code> (generate / edit / inpaint) and <code>get-prompt-from-image</code> (image → prompt)</td>
+  </tr>
+  <tr>
+    <td>Models</td>
+    <td><code>gpt-image-2.5-flare</code>, <code>gpt-image-2.5-sunburst</code>, <code>gpt-image-2</code></td>
+  </tr>
+  <tr>
+    <td>Clients</td>
+    <td>Codex, WorkBuddy, CodeBuddy, Claude Code, Cursor, Cline, Roo Code, OpenCode, Pi, OpenClaw, Hermes, AgentSkills</td>
+  </tr>
+  <tr>
+    <td>Relay</td>
+    <td>Official OpenAI or any OpenAI-compatible base URL, with automatic <code>/v1</code> normalization</td>
   </tr>
   <tr>
     <td>Last update</td>
@@ -48,7 +72,7 @@
   </tr>
 </table>
 
-The repo keeps the GPT Image 2 prompt collection and gallery alongside 2.5 API support, [reading material](#image-25-reading) and task-specific references. The two skills handle image generation/editing and image-to-prompt extraction.
+The gallery is still the fastest way to steal a working brief. The skills and CLI are how you run it. [Reading notes for Image 2.5](#image-25-reading) sit with the task-specific references.
 
 > TBH, GPT Image 2.5 feels seriously capable. I prefer giving it a clear reference: a shape, a sketch or an image. Sometimes showing a layout from a PDF is more useful than describing it at length. It's how I like to work with GPT-6, too: **minimize the prompt; make the reference clear.**
 >
@@ -58,9 +82,204 @@ For the CLI, export the relevant PDF pages as PNG, WebP or JPG, then attach them
 
 For PPT work, try vector-style diagrams, icons and slide layouts. The [Image API outputs PNG, JPEG or WebP](https://developers.openai.com/api/docs/guides/image-generation#output-format); editable SVG or PowerPoint shapes need a separate authoring step.
 
+### Highlights
+
+| Capability | What you get |
+|---|---|
+| **Third-party relay ready** | Bare URLs such as `https://jp.xcli.si` normalize to `/v1`. The CLI pairs the relay URL and key from the same `.env` so a global shell `OPENAI_API_KEY` does not get sent to `~/.codex/.env`'s relay. Responses may be `b64_json` or a pre-signed `url` fetched with `User-Agent: Mozilla/5.0`. |
+| **12+ IDE & CLI clients** | Skills install into Codex (`~/.codex/skills`), WorkBuddy (`~/.workbuddy/skills`), CodeBuddy (`~/.codebuddy/skills`), Claude Code (`~/.claude/skills`), Cursor (`~/.cursor/skills`), Cline (`~/.cline/skills`), Roo Code (`~/.roo/skills`), OpenCode (`~/.config/opencode/skills`), Pi (`~/.pi/agent/skills`), OpenClaw (`~/.openclaw/skills`), Hermes (`~/.hermes/skills`), and AgentSkills (`~/.agents/skills`). |
+| **GUI + TUI display** | GUI chats embed `![alt](/absolute/path.png)`. TUI terminals use `--preview auto` (`/dev/tty` OSC 1337 or Kitty APC, stdout stays a file path) or `--open` for the OS viewer. |
+| **2K / 2.5K / 4K shortcuts** | `1k`, `2k`, `2k-landscape` (`2048x1152`), `2k-portrait` (`1152x2048`), `2.5k` (`2560x1440`), `4k` (`3840x2160`), `4k-square` (`2880x2880`), `portrait`, `landscape`, and more. |
+| **Prompt gallery** | 163 numbered entries, 31 categories, copy-paste CLI or natural-language skill requests. |
+
+<a id="install"></a>
+
+## 30-second install
+
+Installs both `gpt-image` and `get-prompt-from-image` for the clients above, with first-class OpenAI-compatible relays (`https://jp.xcli.si/v1`, `https://us.xcli.si/v1`, or a custom URL).
+
+### Option A: one-sentence AI agent install (recommended for Codex / WorkBuddy / Claude Code / Cursor)
+
+Paste this into the agent. It runs non-interactively, **never asks for the API key in chat**, and prints the exact `.env` path (`~/.codex/.env`) for you to fill in locally:
+
+```text
+Install https://github.com/Masikomoore/GPT-Image2-Skill by running `curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh -s -- --agent-mode`, do not ask me for my API key in chat, and tell me the exact .env file path so I can fill in OPENAI_BASE_URL and OPENAI_API_KEY myself.
+```
+
+Then edit the printed path, usually `~/.codex/.env`:
+
+```dotenv
+OPENAI_BASE_URL=https://jp.xcli.si/v1
+OPENAI_API_KEY=your_relay_api_key_here
+```
+
+### Option B: one-command interactive terminal install (for humans)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh
+```
+
+Windows PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.ps1 | iex
+```
+
+The installer detects installed clients, then prompts:
+
+1. Relay selector: `1` = `https://jp.xcli.si/v1`, `2` = `https://us.xcli.si/v1`, or paste a custom URL (bare hosts get `/v1` appended).
+2. Hidden `OPENAI_API_KEY` prompt (existing non-placeholder keys can be kept by pressing Enter).
+
+Writes `.env` with mode `0600`.
+
+### Relay `.env` pairing
+
+Credentials are read from process env, then `.env` files, **without overriding an already-set process variable**. If process env has no base URL, the first `.env` that defines a relay URL keeps that URL **paired with the key from the same file**. That is the guard against a global shell `OPENAI_API_KEY` colliding with a relay URL in `~/.codex/.env`.
+
+Search order:
+
+`process env` → `./.env` → `<skill>/.env` → `${CODEX_HOME:-~/.codex}/.env` → `~/.workbuddy/.env` → `~/.codebuddy/.env` → `~/.claude/.env` → `~/.cursor/.env` → `~/.agents/.env` → `~/.env`
+
+Aliases: `GPT_IMAGE_API_KEY` / `XCLI_API_KEY`, `GPT_IMAGE_BASE_URL` / `XCLI_BASE_URL` / `BASE_URL`. Placeholder values such as `YOUR_API_KEY_HERE` are treated as unset.
+
+```bash
+command -v gpt-image || true
+command -v uv >/dev/null && uv tool list | grep -E '^gpt-image-cli([[:space:]]|$)' || true
+test -n "${OPENAI_API_KEY:-}" && echo "OPENAI_API_KEY is already set (value hidden)"
+```
+
+Preserve existing skill folders and API-key files. Use the runtime's skill list/status command when available, and ask before installing into a global or shared directory.
+
+<details>
+<summary><strong>Client skill paths and extra install methods</strong></summary>
+
+| Client | Skills directory |
+|---|---|
+| Codex | `~/.codex/skills` |
+| WorkBuddy | `~/.workbuddy/skills` |
+| CodeBuddy | `~/.codebuddy/skills` |
+| Claude Code | `~/.claude/skills` |
+| Cursor | `~/.cursor/skills` |
+| Cline | `~/.cline/skills` |
+| Roo Code | `~/.roo/skills` |
+| OpenCode | `~/.config/opencode/skills` |
+| Pi | `~/.pi/agent/skills` |
+| OpenClaw | `~/.openclaw/skills` |
+| Hermes | `~/.hermes/skills` |
+| AgentSkills | `~/.agents/skills` |
+
+<details>
+<summary><strong>Claude Code plugin</strong></summary>
+
+```text
+/plugin marketplace add Masikomoore/GPT-Image2-Skill
+/plugin install gpt-image@wuyoscar-skills
+```
+
+</details>
+
+<details>
+<summary><strong>Codex `$skill-installer`</strong></summary>
+
+```text
+# gpt-image
+$skill-installer
+Install this skill from GitHub:
+https://github.com/Masikomoore/GPT-Image2-Skill/tree/main/skills/gpt-image
+
+# get-prompt-from-image
+$skill-installer
+Install this skill from GitHub:
+https://github.com/Masikomoore/GPT-Image2-Skill/tree/main/skills/get-prompt-from-image
+```
+
+Restart Codex after installation. Manual copy:
+
+```bash
+git clone https://github.com/Masikomoore/GPT-Image2-Skill.git
+cd GPT-Image2-Skill
+
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+for skill in gpt-image get-prompt-from-image; do
+  test -e "${CODEX_HOME:-$HOME/.codex}/skills/$skill" && echo "$skill already exists; stop before overwriting" && exit 1
+  cp -R "skills/$skill" "${CODEX_HOME:-$HOME/.codex}/skills/"
+done
+```
+
+</details>
+
+<details>
+<summary><strong>AgentSkills / npx skills</strong></summary>
+
+```bash
+# Change --agent to claude-code, codex, opencode, openclaw, or another supported runtime.
+npx --yes skills@latest add Masikomoore/GPT-Image2-Skill \
+  --skill gpt-image \
+  --skill get-prompt-from-image \
+  --agent codex --copy
+```
+
+These examples intentionally avoid `--global`. Add `--global` only when you want a global/shared skills directory.
+
+</details>
+
+<details>
+<summary><strong>Manual agent-skill install</strong></summary>
+
+```bash
+git clone https://github.com/Masikomoore/GPT-Image2-Skill.git
+cd GPT-Image2-Skill
+
+# Choose the skill directory for your runtime.
+# Examples:
+#   Codex:      ~/.codex/skills
+#   Claude Code / OpenClaw / Hermes Agent / other runtimes: use that runtime's documented skills directory.
+export AGENT_SKILLS_DIR="/path/to/your/agent/skills"
+
+mkdir -p "$AGENT_SKILLS_DIR"
+for skill in gpt-image get-prompt-from-image; do
+  test -e "$AGENT_SKILLS_DIR/$skill" && echo "$skill already exists; stop before overwriting" && exit 1
+  ln -s "$PWD/skills/$skill" "$AGENT_SKILLS_DIR/$skill"
+done
+```
+
+</details>
+
+<details>
+<summary><strong>CLI only</strong></summary>
+
+```bash
+uvx --from git+https://github.com/Masikomoore/GPT-Image2-Skill gpt-image --model gpt-image-2.5-flare -p "a cat astronaut"
+
+# or install to PATH if not already installed
+command -v gpt-image >/dev/null || uv tool install git+https://github.com/Masikomoore/GPT-Image2-Skill
+gpt-image --model gpt-image-2.5-flare -p "a cat astronaut"
+```
+
+</details>
+
+<details>
+<summary><strong>Update</strong></summary>
+
+```bash
+# plugin: use Claude Code's update flow
+# codex skill: rerun the installer
+# manual git clone
+cd gpt_image_2_skill && git pull
+
+# CLI
+uv tool upgrade gpt-image-cli
+```
+
+</details>
+
+> **API keys:** This CLI reads the process environment, then the `.env` chain above. `unset OPENAI_API_KEY` clears the process variable only. Codex users can choose its built-in image tool when they prefer platform-managed generation. Never paste a key into chat.
+
+</details>
+
 <a id="sunburst-samples"></a>
 
-## ✨ Made with GPT Image 2.5
+## Made with GPT Image 2.5
 
 Two 2K samples: an exploded watch assembly with detailed callouts, and a multi-storey cafe cutaway built from a reference image. Both use `gpt-image-2.5-sunburst`, `2048x2048` and `high`.
 
@@ -101,7 +320,7 @@ See the [sample record](docs/sunburst-samples.md) for settings, inputs and revie
 
 <a id="image-example"></a>
 
-## 🖼️ From reference image to result
+## From reference image to result
 
 Thanks to [@LunarXuan](https://github.com/LunarXuan) for **Get Prompt from Image**. A vision-capable agent extracts a prompt from a reference image, then passes it to `gpt-image` or another generator. The contributor-provided reference and its generated result are shown below.
 
@@ -125,8 +344,7 @@ Attach an image and invoke the skill with a slash command, `$get-prompt-from-ima
 Extract a reusable English positive prompt and a targeted negative prompt from this image, then recreate it with gpt-image.
 ```
 
-
-**📝 Extracted prompt used for the generated result**
+**Extracted prompt used for the generated result**
 
 **Positive Prompt**
 
@@ -140,10 +358,9 @@ A highly polished semi-realistic Japanese narrative illustration rendered in a p
 photorealistic, 3D render, flat vector style, pure cel shading, watercolor bleed, oil painting impasto, chibi proportions, deformed anatomy, malformed hands, extra limbs, oversized wolf, sunny summer weather, cluttered composition, readable text, watermark
 ~~~
 
-
 <a id="quickstart"></a>
 
-## 🚀 Quick start
+## Quick start
 
 | Task | Use |
 |---|---|
@@ -151,15 +368,15 @@ photorealistic, 3D render, flat vector style, pure cel shading, watercolor bleed
 | Extract a prompt from a reference | [`get-prompt-from-image`](skills/get-prompt-from-image/SKILL.md) |
 | Work in a terminal | CLI examples below, with the selected `--model` |
 
-### 🎛️ Choose a model
+### Choose a model
 
 | Model | Best starting point |
 |---|---|
 | `gpt-image-2.5-flare` | Fast, high-quality everyday generation |
 | `gpt-image-2.5-sunburst` | Precise edits and reference-image workflows |
-| `gpt-image-2` | Retain the model used by existing workflows |
+| `gpt-image-2` | Keep the model used by existing workflows |
 
-The Skill offers this menu when the model is missing or ambiguous (for example, “GPT 2.5”), then confirms the choice before generating. An exact supported model choice proceeds directly. It always passes an explicit `--model`; the standalone CLI still defaults to `gpt-image-2`. Changing models or adding outputs requires the user's approval.
+The Skill offers this menu when the model is missing or ambiguous (for example, “GPT 2.5”), then confirms the choice before generating. An exact supported model choice proceeds directly. `gpt-image-2.5` is not an API model ID. The Skill always passes an explicit `--model`; the standalone CLI still defaults to `gpt-image-2`. Changing models or adding outputs requires the user's approval.
 
 Both 2.5 models add `--quality xhigh` / `max` and support transparent PNG/WebP output. Start with `low` drafts; higher quality can increase latency and cost. For example, after choosing Flare:
 
@@ -197,182 +414,13 @@ gpt-image --model gpt-image-2.5-sunburst -p "replace sky with aurora" \
   -i photo.jpg -m sky_mask.png -f aurora.png
 ```
 
-Under the hood: `POST /v1/images/edits` (multipart form). GPT Image 2 and both 2.5 models use this endpoint, with multiple `-i` inputs and an optional `-m` mask. Read results from `data[].b64_json` and omit `response_format`. See [model compatibility](skills/gpt-image/references/models.md).
+Under the hood: `POST /v1/images/edits` (multipart form). GPT Image 2 and both 2.5 models use this endpoint, with multiple `-i` inputs and an optional `-m` mask. Read results from `data[].b64_json` (or download `data[].url` with `User-Agent: Mozilla/5.0`) and omit `response_format`. See [model compatibility](skills/gpt-image/references/models.md).
 
-<a id="install"></a>
-
-## 📥 Install
-Install both `gpt-image` (image generation & editing) and `get-prompt-from-image` (reverse-prompt extraction) across **Codex, WorkBuddy, CodeBuddy, Claude Code, Cursor, Cline, Roo Code, OpenCode, Pi, OpenClaw, and Hermes Agent**, with first-class support for **third-party OpenAI-compatible relays** (such as `https://jp.xcli.si/v1` and `https://us.xcli.si/v1`).
-
-### Option 1: One-Command Interactive Terminal Install (For Humans)
-
-Run this single command in your terminal. It automatically detects installed IDE/CLI clients, installs the skills, and interactively prompts for your relay `OPENAI_BASE_URL` and hidden `OPENAI_API_KEY`:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh
-```
-
-Windows PowerShell:
-
-```powershell
-irm https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.ps1 | iex
-```
-
-### Option 2: One-Sentence AI Agent Install (Codex / WorkBuddy / Claude Code / Cursor)
-
-Paste this single sentence to your AI Agent (it installs the skills in non-interactive mode without asking for secrets in chat, and prints the `.env` file path for you to fill in locally):
-
-```text
-Install https://github.com/Masikomoore/GPT-Image2-Skill by running `curl -fsSL https://raw.githubusercontent.com/Masikomoore/GPT-Image2-Skill/main/install.sh | sh -s -- --agent-mode`, do not ask me for my API key in chat, and tell me the exact .env file path so I can fill in OPENAI_BASE_URL and OPENAI_API_KEY myself.
-```
-
-### 🔑 Third-Party Relay & `.env` Configuration
-
-By default, credentials are read from `~/.codex/.env` (as well as `~/.workbuddy/.env`, `<skill>/.env`, `./.env`, and `~/.env`):
-
-```dotenv
-OPENAI_BASE_URL=https://jp.xcli.si/v1
-OPENAI_API_KEY=your_relay_api_key_here
-```
-
-Check for an existing skill or CLI before installing. Preserve existing skill folders and API-key files. Use your runtime's skill list/status command when available, and ask before installing into a global or shared directory.
-
-```bash
-command -v gpt-image || true
-command -v uv >/dev/null && uv tool list | grep -E '^gpt-image-cli([[:space:]]|$)' || true
-test -n "${OPENAI_API_KEY:-}" && echo "OPENAI_API_KEY is already set (value hidden)"
-```
-
-<details>
-<summary><strong>Claude Code</strong></summary>
-
-```text
-/plugin marketplace add Masikomoore/GPT-Image2-Skill
-/plugin install gpt-image@wuyoscar-skills
-```
-
-</details>
-
-<details>
-<summary><strong>Codex</strong></summary>
-
-Codex ships with built-in skill helpers such as `$skill-installer` and `$skill-creator`.
-Open Codex and invoke the built-in installer with the GitHub skill-folder URL for each skill you want:
-
-```text
-# gpt-image
-$skill-installer
-Install this skill from GitHub:
-https://github.com/Masikomoore/GPT-Image2-Skill/tree/main/skills/gpt-image
-
-# get-prompt-from-image
-$skill-installer
-Install this skill from GitHub:
-https://github.com/Masikomoore/GPT-Image2-Skill/tree/main/skills/get-prompt-from-image
-```
-
-The installer downloads each GitHub folder and places it under your Codex skills directory, usually:
-
-```bash
-~/.codex/skills/gpt-image
-~/.codex/skills/get-prompt-from-image
-```
-
-Restart Codex after installation so the new skills are loaded.
-
-If you prefer to install both manually, copy their skill folders into Codex's skills directory:
-
-```bash
-git clone https://github.com/Masikomoore/GPT-Image2-Skill.git
-cd GPT-Image2-Skill
-
-mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-for skill in gpt-image get-prompt-from-image; do
-  test -e "${CODEX_HOME:-$HOME/.codex}/skills/$skill" && echo "$skill already exists; stop before overwriting" && exit 1
-  cp -R "skills/$skill" "${CODEX_HOME:-$HOME/.codex}/skills/"
-done
-```
-
-</details>
-
-<details>
-<summary><strong>AgentSkills / npx skills</strong></summary>
-
-For runtimes supported by the cross-agent `skills` installer, select either skill or install both together from GitHub:
-
-```bash
-# Change --agent to claude-code, codex, opencode, openclaw, or another supported runtime.
-npx --yes skills@latest add Masikomoore/GPT-Image2-Skill \
-  --skill gpt-image \
-  --skill get-prompt-from-image \
-  --agent codex --copy
-```
-
-These examples intentionally avoid `--global`. Add `--global` only when you explicitly want this skill installed into that runtime's global/shared skills directory.
-
-Other runtimes can use the manual agent-skill installation below.
-
-</details>
-
-<details>
-<summary><strong>Manual agent-skill install</strong></summary>
-
-Set `AGENT_SKILLS_DIR` to the skills directory used by your agent runtime, then symlink one or both skill folders into it.
-
-```bash
-git clone https://github.com/Masikomoore/GPT-Image2-Skill.git
-cd GPT-Image2-Skill
-
-# Choose the skill directory for your runtime.
-# Examples:
-#   Codex:      ~/.codex/skills
-#   Claude Code / OpenClaw / Hermes Agent / other runtimes: use that runtime's documented skills directory.
-export AGENT_SKILLS_DIR="/path/to/your/agent/skills"
-
-mkdir -p "$AGENT_SKILLS_DIR"
-for skill in gpt-image get-prompt-from-image; do
-  test -e "$AGENT_SKILLS_DIR/$skill" && echo "$skill already exists; stop before overwriting" && exit 1
-  ln -s "$PWD/skills/$skill" "$AGENT_SKILLS_DIR/$skill"
-done
-```
-
-</details>
-
-<details>
-<summary><strong>CLI</strong></summary>
-
-```bash
-uvx --from git+https://github.com/Masikomoore/GPT-Image2-Skill gpt-image --model gpt-image-2.5-flare -p "a cat astronaut"
-
-# or install to PATH if not already installed
-command -v gpt-image >/dev/null || uv tool install git+https://github.com/Masikomoore/GPT-Image2-Skill
-gpt-image --model gpt-image-2.5-flare -p "a cat astronaut"
-```
-
-</details>
-
-<details>
-<summary><strong>Update</strong></summary>
-
-```bash
-# plugin: use Claude Code's update flow
-# codex skill: rerun the installer
-# manual git clone
-cd gpt_image_2_skill && git pull
-
-# CLI
-uv tool upgrade gpt-image-cli
-```
-
-</details>
-
-Reads `OPENAI_API_KEY` from process env, then `.env`, then `~/.env` without overriding an already-set env var.
-
-> **API keys:** This CLI reads the process environment, `.env` and `~/.env`. To avoid using a local key, check all three locations; `unset OPENAI_API_KEY` clears the process variable only. Codex users can choose its built-in image tool when they prefer platform-managed generation.
+GUI clients should also embed the saved file as Markdown with its absolute path. In a TUI, add `--preview auto` or `--open`.
 
 <a id="cli-reference"></a>
 
-## 🛠️ CLI reference
+## CLI reference
 
 <details>
 <summary><strong>Parameters, quality settings and SDK examples</strong></summary>
@@ -386,23 +434,46 @@ Reads `OPENAI_API_KEY` from process env, then `.env`, then `~/.env` without over
 |---|---|---|---|---|
 | `-p, --prompt` | str | required | both | Full prompt text. |
 | `--model` | exact model ID above | `gpt-image-2` | both | The Skill always passes the confirmed model explicitly; the CLI default stays backward-compatible. |
-| `-f, --file` | path | `./fig/YYYY-MM-DD-HH-MM-SS-<slug>.png` | both | Explicit output path. |
+| `-f, --file` | path | `./fig/YYYY-MM-DD-HH-MM-SS-<slug>.png` | both | Explicit output path. Auto-named into `./fig/` if that directory exists, else `./`. |
 | `-i, --image` | path (repeatable) | omitted | edits | Presence routes through `/v1/images/edits`. |
 | `-m, --mask` | path (PNG, alpha) | omitted | edits | Opaque = preserved, transparent = regenerated. Requires `-i`. |
 | `--input-fidelity` | `low` · `high` | omitted | edits | Image 2 cannot set it, so the CLI omits it. For 2.5, explicit values pass through but behavior remains unverified; see model notes. |
-| `--size` | `1k` · `2k` · `4k` · `portrait` · `landscape` · `square` · `wide` · `tall` · literal `1024x1024` etc. | `1024x1024` | both | Literals must be 16-px multiples, max edge 3840, 3:1 cap, 655k-8.3M total pixels. |
+| `--size` | shortcut or `WIDTHxHEIGHT` | `1024x1024` | both | See the shortcut table. Literals must be 16-px multiples, max edge 3840, 3:1 cap, 655360–8294400 total pixels. |
 | `--quality` | `auto` · `low` · `medium` · `high` · `xhigh` · `max` | `high` | both | `xhigh` / `max` require a 2.5 model; use `low` drafts to assess quality, latency, and cost first. |
-| `-n, --n` | 1-10 | 1 | both | Batch generation. `n>1` suffixes filenames `_0`, `_1`, … |
-| `--background` | `auto` · `opaque` · `transparent` | API default | both | Transparency requires PNG/WebP; Image 2 transparency remains in preview. |
+| `-n, --n` | integer | 1 | both | Batch generation. `n>1` suffixes filenames `_0`, `_1`, … |
+| `--background` | `auto` · `opaque` · `transparent` | API default | both | Transparency requires PNG/WebP; JPEG + transparent is rejected. Image 2 transparency remains in preview. |
 | `--moderation` | `auto` · `low` | `low` | generations | `low` is the default here for broader prompt exploration; switch to `auto` if you want the stricter API-side default. |
 | `--format` | `png` · `jpeg` · `webp` | `png` | both | Response encoding. |
 | `--compression` | 0-100 | omitted | both | JPEG/WebP only. |
-| `--base-url` | URL str | `OPENAI_BASE_URL` | both | OpenAI-compatible relay base URL (e.g. `https://jp.xcli.si/v1`). |
+| `--user` | str | omitted | both | Optional end-user identifier forwarded for abuse tracking. |
+| `--base-url` | URL str | `OPENAI_BASE_URL` | both | OpenAI-compatible relay base URL (e.g. `https://jp.xcli.si/v1`). Overrides `OPENAI_BASE_URL` / `GPT_IMAGE_BASE_URL` / `XCLI_BASE_URL`. |
 | `--api-key` | str | `OPENAI_API_KEY` | both | API key override (prefer configuring `~/.codex/.env`). |
-| `--preview` | `auto` · `osc1337` · `kitty` · `open` · `off` | `off` | both | Render inline image in TUI terminals via `/dev/tty` or open viewer. |
-| `--open` | flag | `false` | both | Open generated image(s) in OS default viewer. |
+| `--preview` | `auto` · `osc1337` · `kitty` · `open` · `off` | `off` | both | Inline TUI preview via `/dev/tty` (OSC 1337 / Kitty APC) or OS viewer. Does not write sequences to stdout. |
+| `--open` | flag | `false` | both | Open generated image(s) in the OS default viewer (alias for `--preview open`). |
 
 </details>
+
+### Size shortcuts
+
+| Shortcut | Pixels |
+|---|---|
+| `1k`, `square` | `1024x1024` |
+| `portrait` | `1024x1536` |
+| `landscape` | `1536x1024` |
+| `2k` | `2048x2048` |
+| `2k-landscape`, `2k-wide`, `wide` | `2048x1152` |
+| `2k-portrait`, `2k-tall` | `1152x2048` |
+| `2k-4:3` | `2048x1536` |
+| `2.5k`, `2.5k-landscape`, `2.5k-wide` | `2560x1440` |
+| `2.5k-portrait`, `2.5k-tall` | `1440x2560` |
+| `2.5k-square` | `2560x2560` |
+| `2.5k-4:3` | `2560x2064` |
+| `4k`, `4k-landscape`, `4k-wide` | `3840x2160` |
+| `4k-portrait`, `4k-tall`, `tall` | `2160x3840` |
+| `4k-square` | `2880x2880` |
+| `4k-4:3` | `3264x2448` |
+
+Above 2560×1440 is experimental. A size shortcut controls the pixel canvas; keep the prompt's aspect ratio consistent with `--size`.
 
 ### Budget / quality guide
 
@@ -411,8 +482,9 @@ Use `--quality` to manage the generation budget.
 - `low` = cheap draft / collect / many variants
 - `medium` = normal exploration / style probing
 - `high` = final posters, Chinese text, diagrams, paper figures, banners
+- `xhigh` / `max` = 2.5-only, detail-critical assets
 
-If you are generating dozens of candidates, start at `low` and only rerun finalists at `high`. On 2.5, compare `xhigh` / `max` for detail-critical assets. Agree on additional outputs and costs before comparing settings.
+If you are generating dozens of candidates, start at `low` and only rerun finalists at `high`. Agree on additional outputs and costs before comparing settings.
 
 ### From gallery prompt → CLI / SDK
 
@@ -443,12 +515,12 @@ Exit codes: `0` success · `1` API/refusal error (full response body echoed to s
 
 <a id="guides"></a>
 
-## 📚 Guides and reading
+## Guides and reading
 
 > [!CAUTION]
 > Use generated images as references, workflow sketches or style targets for research figures. Prepare and verify the final figure separately before including it in a paper; directly publishing a raw generation can mislead readers.
 
-### 📖 Prompting Fundamentals
+### Prompting fundamentals
 
 <details>
 <summary><strong>Show prompting notes</strong></summary>
@@ -475,11 +547,11 @@ Shared techniques from the [historical Image 2 Cookbook](skills/gpt-image/refere
 
 <a id="image-25-reading"></a>
 
-### 📚 GPT Image 2.5: understand the workflow
+### GPT Image 2.5: understand the workflow
 
 English-language official sources and established publications first, developer guides next; Chinese-language reading supplements them. Read these links when useful. OpenAI's documentation is the reference for API details.
 
-#### 🌐 English-first · 8 sources
+#### English-first · 8 sources
 
 | Source | Read | What to take away |
 |---|---|---|
@@ -492,7 +564,7 @@ English-language official sources and established publications first, developer 
 | ⚖️ **7 · OrcaRouter** | [Flare vs Sunburst for builders](https://www.orcarouter.ai/blog/gpt-image-2-5-flare-sunburst) ‡ | Model-selection advice by workload; performance claims need independent checking. |
 | 🧩 **8 · FindSkill** | [Sketch step by step](https://findskill.ai/blog/chatgpt-images-2-5-sketch-tool-explained/) | Use a drawing for layout and text for additional instructions. |
 
-#### 🗂️ Chinese-language supplements · 2 sources
+#### Chinese-language supplements · 2 sources
 
 | Source | Read | What to take away |
 |---|---|---|
@@ -502,6 +574,45 @@ English-language official sources and established publications first, developer 
 *Source-access status, checked 2026-09-09: † Full text pending for The Verge and 人人都是产品经理. ‡ Indexed content only for OrcaRouter.*
 
 **Using ChatGPT sketches with the CLI:** Sketch, Templates and Comments operate inside ChatGPT. Export a sketch as an image and attach it with `-i`. For task-specific local notes, choose one slice from the [optional 2.5 reference index](skills/gpt-image/references/openai-image-2.5.md).
+
+<a id="faq"></a>
+
+## FAQ
+
+**Where do I set `OPENAI_API_KEY` and `OPENAI_BASE_URL`?**
+
+Prefer `~/.codex/.env` (agent-mode prints this path). The same pair also works in `./.env`, `<skill>/.env`, `~/.workbuddy/.env`, `~/.codebuddy/.env`, `~/.claude/.env`, `~/.cursor/.env`, `~/.agents/.env`, or `~/.env`. Example:
+
+```dotenv
+OPENAI_BASE_URL=https://jp.xcli.si/v1
+OPENAI_API_KEY=your_relay_api_key_here
+```
+
+`--base-url` and `--api-key` override env for one call. Never paste the key into chat; agent-mode install leaves placeholders for you to fill locally.
+
+**How does `.env` precedence work, and why might a global `OPENAI_API_KEY` be ignored?**
+
+Process env wins for variables that are already set. The exception: if process env has **no** base URL, the CLI keeps the relay URL and key **from the same `.env` file** so a global official OpenAI key is not sent to `https://jp.xcli.si/v1` (or whatever URL lives in `~/.codex/.env`). Remaining files load with `override=False`. Placeholder keys are ignored. `unset OPENAI_API_KEY` only clears the process variable.
+
+**How do GUI clients show images versus TUI terminals?**
+
+GUI clients (Codex Desktop, WorkBuddy, Cursor, Cline, Roo Code) should embed `![alt](/absolute/path/to/image.png)` in the reply. TUI terminals (iTerm2, WezTerm, Warp, Konsole, Kitty, Ghostty) should pass `--preview auto`, which writes OSC 1337 or Kitty APC to `/dev/tty` and still prints only the file path on stdout. `--open` launches the OS viewer. `GPT_IMAGE_PREVIEW` can set the default preview mode.
+
+**Flare, Sunburst, or GPT Image 2?**
+
+- `gpt-image-2.5-flare` — fast everyday generation and drafts.
+- `gpt-image-2.5-sunburst` — precise reference edits, multi-image composition, inpainting, and detail-critical control.
+- `gpt-image-2` — existing Image 2 workflows and CLI backward compatibility (CLI default when `--model` is omitted).
+
+If someone says “GPT 2.5”, ask which of the three. Do not send `gpt-image-2.5` as a model ID. `xhigh` / `max` require Flare or Sunburst.
+
+**Does this work with official OpenAI, or only a relay?**
+
+Both. Leave `OPENAI_BASE_URL` unset for the official API, or point it at any OpenAI-compatible relay. Bare hosts are normalized to end with `/v1`. Image bytes come from `b64_json` or a pre-signed `url`.
+
+**Can I inpaint and use several reference images?**
+
+Yes. Repeat `-i` for multi-reference edits. Add `-m mask.png` for alpha-mask inpainting (opaque keep / transparent regenerate). Masks require at least one `-i`.
 
 <a id="gallery-index"></a>
 
@@ -3045,12 +3156,11 @@ Create a Japanese traditional irezumi tattoo design poster for a full back piece
 Create a dark surrealist tattoo design sheet in portrait format. Subject: a giant lunar moth with eye-like wing markings, its body transforming into a tiny gothic cathedral, black roses, thorn halos, melting moon phases, and a staircase fading into mist. Style: dark surrealism meets fine-line tattoo and blackwork, with selective muted color accents in bruised violet, cold blue, and oxidized gold. Composition: vertical sternum-or-back tattoo concept with clean stencil-ready silhouette, ornamental framing, and clear negative-space breaks. Include small readable labels: "DARK SURREAL" / "MOTH CATHEDRAL". Mood: mysterious and elegant, not gore. Avoid horror splatter, avoid excessive tiny details that cannot tattoo, no real human body, no brand logos.
 ```
 
-
 <a id="community"></a>
 
-## 🤝 Contribute
+## Contribute
 
-Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before adding prompts, images, categories, or runtime integrations.
+PRs are welcome for prompts, images, categories, runtime integrations, and docs. Read [CONTRIBUTING.md](CONTRIBUTING.md) first. Keep gallery credits visible, and do not commit API keys.
 
 Community standards:
 
@@ -3059,7 +3169,9 @@ Community standards:
 - [Support](SUPPORT.md)
 - [Pull request template](.github/PULL_REQUEST_TEMPLATE.md)
 
-### 🙏 Thanks
+Repo: [github.com/Masikomoore/GPT-Image2-Skill](https://github.com/Masikomoore/GPT-Image2-Skill)
+
+### Thanks
 
 Thanks to the projects and communities below for sharing their work:
 
@@ -3100,6 +3212,6 @@ Thanks to the projects and communities below for sharing their work:
 
 </details>
 
-## 📄 License
+## License
 
 Released under the [MIT License](LICENSE). Preserve the author and source credits attached to gallery entries.
